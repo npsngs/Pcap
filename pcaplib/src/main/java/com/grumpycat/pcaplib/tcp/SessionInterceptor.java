@@ -49,9 +49,9 @@ public class SessionInterceptor implements TunnelInterceptor {
                 .build();
         helper.addData(saveData);
 
-        DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
+        /*DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
         dataMeta.setOut(false);
-        session.addDataMeta(dataMeta);
+        session.addDataMeta(dataMeta);*/
     }
 
     @Override
@@ -65,9 +65,9 @@ public class SessionInterceptor implements TunnelInterceptor {
                 .offSet(0)
                 .build();
         helper.addData(saveData);
-        DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
+        /*DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
         dataMeta.setOut(true);
-        session.addDataMeta(dataMeta);
+        session.addDataMeta(dataMeta);*/
     }
 
     @Override

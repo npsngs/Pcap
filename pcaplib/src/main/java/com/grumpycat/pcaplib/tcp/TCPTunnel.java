@@ -190,8 +190,8 @@ public class TCPTunnel {
                     writeCache.clear();
                 }
 
-                selectionKey.cancel();
-                selector.selectNow();
+                /*selectionKey.cancel();
+                selector.selectNow();*/
                 innerChannel.close();
 
                 if (isClosePair && mateTunnel != null) {
