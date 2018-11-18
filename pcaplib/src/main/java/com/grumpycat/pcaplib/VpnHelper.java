@@ -70,6 +70,7 @@ public class VpnHelper {
     private void runningVpn(){
         try {
             portService = new PortService();
+            portService.startObserve();
             udpQueue = new ConcurrentLinkedQueue<>();
 
             //启动TCP代理服务
@@ -178,13 +179,16 @@ public class VpnHelper {
 
                 CommonMethods.ComputeTCPChecksum(ipHeader, tcpHeader);
 
-                Log.e("exchange", ipHeader.toString()
-                        + "size:"+size
-                        + " totalS:"
-                        + ipHeader.getTotalLength()
-                        + "THLen:"+tcpHeader.getHeaderLength()
-                        + "TCP:["+tcpHeader.toString()+"]"
-                        + printData(ipHeader, tcpHeader));
+                if(Const.LOG_ON){
+                    Log.e("exchange", ipHeader.toString()
+                            + "size:"+size
+                            + " totalS:"
+                            + ipHeader.getTotalLength()
+                            + "THLen:"+tcpHeader.getHeaderLength()
+                            + "TCP:["+tcpHeader.toString()+"]"
+                            + printData(ipHeader, tcpHeader));
+                }
+
 
                 fos.write(ipHeader.mData, ipHeader.mOffset, size);
                 VpnMonitor.addReceiveBytes(size);
@@ -218,14 +222,16 @@ public class VpnHelper {
             //丢弃tcp握手的第二个ACK报文。因为客户端发数据的时候也会带上ACK，这样可以在服务器Accept之前分析出HOST信息。
 
             if (session.sendPacket == 2 && tcpDataSize == 0) {
-                Log.e("send2Proxy", ipHeader.toString()
-                        + "size:"+size
-                        + " totalS:"
-                        +ipHeader.getTotalLength()
-                        + "THLen:"+tcpHeader.getHeaderLength()
-                        + "TCP:["+tcpHeader.toString()+"]  [Discarded]");
+                if(Const.LOG_ON) {
+                    Log.e("send2Proxy", ipHeader.toString()
+                            + "size:" + size
+                            + " totalS:"
+                            + ipHeader.getTotalLength()
+                            + "THLen:" + tcpHeader.getHeaderLength()
+                            + "TCP:[" + tcpHeader.toString() + "]  [Discarded]");
+                }
                 return false;
-            }else{
+            }else if(Const.LOG_ON){
                 Log.e("send2Proxy", ipHeader.toString()
                         + "size:"+size
                         + " totalS:"
@@ -321,7 +327,7 @@ public class VpnHelper {
             if(udpServer != null){
                 udpServer.closeAllUDPConn();
             }
-
+            portService.stopObserve();
 
             service.stopSelf();
         }catch (Exception e){

@@ -143,7 +143,9 @@ public class TCPProxy{
         int portKey = localChannel.socket().getPort();
         NetSession session = SessionManager.getSession(portKey);
         if (session != null) {
-            return new InetSocketAddress(localChannel.socket().getInetAddress(), session.getRemotePort());
+            return new InetSocketAddress(
+                    localChannel.socket().getInetAddress(),
+                    session.getRemotePort());
         }
         return null;
     }

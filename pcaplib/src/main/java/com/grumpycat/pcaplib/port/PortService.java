@@ -1,8 +1,11 @@
 package com.grumpycat.pcaplib.port;
 
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.SparseArray;
 
 
@@ -39,9 +42,25 @@ public class PortService {
             }
         };
     }
+    private FileObserver observer;
+    public void startObserve(){
+        observer = new FileObserver("/proc/net/") {
+            @Override
+            public void onEvent(int event, @Nullable String path) {
+                Log.e("PortS", "Event:"+event+" path:"+path);
+            }
+        };
+        observer.startWatching();
+    }
+
+    public void stopObserve(){
+        if(observer != null){
+            observer.stopWatching();
+        }
+    }
 
     public void asyncQuery(PortQuery query){
-        handler.obtainMessage(MSG_TYPE_QUERY, query).sendToTarget();
+        //handler.obtainMessage(MSG_TYPE_QUERY, query).sendToTarget();
     }
 
     private void query(PortQuery query){

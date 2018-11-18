@@ -41,7 +41,7 @@ import com.grumpycat.pcaplib.VpnMonitor;
 
 import java.util.ArrayList;
 
-import static com.grumpycat.pcaplib.util.Const.DEFAULT_PACAGE_NAME;
+import static com.grumpycat.pcaplib.util.Const.DEFAULT_PACKAGE_NAME;
 import static com.grumpycat.pcaplib.util.Const.DEFAULT_PACKAGE_ID;
 import static com.grumpycat.pcaplib.util.Const.VPN_SP_NAME;
 
@@ -95,7 +95,7 @@ public class VPNCaptureActivity extends FragmentActivity {
 
         sharedPreferences = getSharedPreferences(VPN_SP_NAME, MODE_PRIVATE);
         selectPackage = sharedPreferences.getString(DEFAULT_PACKAGE_ID, null);
-        selectName = sharedPreferences.getString(DEFAULT_PACAGE_NAME, null);
+        selectName = sharedPreferences.getString(DEFAULT_PACKAGE_NAME, null);
         packageId.setText(selectName != null ? selectName :
                 selectPackage != null ? selectPackage : getString(R.string.all));
 
@@ -287,9 +287,10 @@ public class VPNCaptureActivity extends FragmentActivity {
                     selectPackage != null ? selectPackage : getString(R.string.all));
             vpnButton.setEnabled(true);
             sharedPreferences.edit().putString(DEFAULT_PACKAGE_ID, selectPackage)
-                    .putString(DEFAULT_PACAGE_NAME, selectName).apply();
+                    .putString(DEFAULT_PACKAGE_NAME, selectName).apply();
         }
     }
+
 
 
 }

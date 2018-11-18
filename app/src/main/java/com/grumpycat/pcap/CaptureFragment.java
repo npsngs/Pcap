@@ -16,7 +16,6 @@ import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.StrUtil;
 import com.grumpycat.pcaplib.util.ThreadProxy;
 
 import java.util.Iterator;
@@ -65,7 +64,7 @@ public class CaptureFragment extends BaseFragment {
 
 
         handler = new Handler();
-        channelList = (ListView) view.findViewById(R.id.channel_list);
+        channelList = view.findViewById(R.id.channel_list);
 
         channelList.setOnItemClickListener((parent, view1, position, id) -> {
             if (allNetConnection == null) {
@@ -75,9 +74,13 @@ public class CaptureFragment extends BaseFragment {
                 return;
             }
             NetSession connection = allNetConnection.get(position);
-            if (connection.getProtocol() == Const.HTTPS || connection.isUdp()) {
+            /*if (connection.getProtocol() == Const.HTTPS || connection.isUdp()) {
+                return;
+            }*/
+            if (connection.isUdp()) {
                 return;
             }
+
             String dir = Const.DATA_DIR
                     + VpnMonitor.getVpnStartTime()
                     + "/"
@@ -96,64 +99,51 @@ public class CaptureFragment extends BaseFragment {
         if (!VpnMonitor.isVpnRunning()) {
             return;
         }
-        ThreadProxy.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                allNetConnection = SessionManager.loadAllSession();
-                if (allNetConnection == null) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            refreshView(allNetConnection);
-                        }
-                    });
-                    return;
-                }
-
-                if(allNetConnection.size() == 0){
-                    return;
-                }
-
-
-                Iterator<NetSession> iterator = allNetConnection.iterator();
-                String packageName = context.getPackageName();
-
-                SharedPreferences sp = getContext().getSharedPreferences(Const.VPN_SP_NAME, Context.MODE_PRIVATE);
-                boolean isShowUDP = sp.getBoolean(Const.IS_UDP_SHOW, false);
-                String selectPackage = sp.getString(Const.DEFAULT_PACKAGE_ID, null);
-                while (iterator.hasNext()) {
-                    NetSession next = iterator.next();
-                    if (next.sendByte == 0 && next.receiveByte == 0) {
-                        iterator.remove();
-                        continue;
-                    }
-                    if (next.isUdp() && !isShowUDP) {
-                        iterator.remove();
-                        continue;
-                    }
-
-                    int uid = next.getUid();
-                    AppInfo appInfo = AppManager.getApp(uid);
-                    if (appInfo != null) {
-                        if (packageName.equals(appInfo.pkgName) ) {
-                            iterator.remove();
-                            continue;
-                        }
-                        if((selectPackage != null && !selectPackage.equals(appInfo.pkgName))){
-                            iterator.remove();
-                        }
-                    }
-                }
-                if (handler == null) {
-                    return;
-                }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshView(allNetConnection);
-                    }
-                });
+        ThreadProxy.getInstance().execute(() -> {
+            allNetConnection = SessionManager.loadAllSession();
+            if (allNetConnection == null) {
+                handler.post(() -> refreshView(allNetConnection));
+                return;
             }
+
+            if(allNetConnection.size() == 0){
+                return;
+            }
+
+
+            Iterator<NetSession> iterator = allNetConnection.iterator();
+            String packageName = context.getPackageName();
+
+            SharedPreferences sp = getContext().getSharedPreferences(Const.VPN_SP_NAME, Context.MODE_PRIVATE);
+            boolean isShowUDP = sp.getBoolean(Const.IS_UDP_SHOW, false);
+            String selectPackage = sp.getString(Const.DEFAULT_PACKAGE_ID, null);
+            while (iterator.hasNext()) {
+                NetSession next = iterator.next();
+                if (next.sendByte == 0 && next.receiveByte == 0) {
+                    iterator.remove();
+                    continue;
+                }
+                if (next.isUdp() && !isShowUDP) {
+                    iterator.remove();
+                    continue;
+                }
+
+                int uid = next.getUid();
+                AppInfo appInfo = AppManager.getApp(uid);
+                if (appInfo != null) {
+                    if (packageName.equals(appInfo.pkgName) ) {
+                        iterator.remove();
+                        continue;
+                    }
+                    if((selectPackage != null && !selectPackage.equals(appInfo.pkgName))){
+                        iterator.remove();
+                    }
+                }
+            }
+            if (handler == null) {
+                return;
+            }
+            handler.post(() -> refreshView(allNetConnection));
         });
     }
 

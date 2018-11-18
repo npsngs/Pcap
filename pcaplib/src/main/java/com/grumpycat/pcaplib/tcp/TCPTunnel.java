@@ -25,13 +25,30 @@ public class TCPTunnel {
     private TunnelInterceptor interceptor;
     private SelectionKey selectionKey;
 
-    private TCPTunnel(){writeCache = new LinkedList<ByteBuffer>() {};}
+    private TCPTunnel(){
+        writeCache = new LinkedList<ByteBuffer>() {};
+        selectedHandler = new SelectHandler() {
+            @Override
+            public void onSelected(SelectionKey key) {
+                if (key.isReadable()) {
+                    onReadable();
+                } else if (key.isWritable()) {
+                    onWritable();
+                } else if (key.isConnectable()) {
+                    onConnectable();
+                }
+            }
+        };
+    }
 
     public void connect(InetSocketAddress connectAddress) throws Exception {
         innerChannel = SocketChannel.open();
         innerChannel.configureBlocking(false);
         if (VpnMonitor.protect(innerChannel.socket())) {
-            selectionKey = innerChannel.register(selector, SelectionKey.OP_CONNECT, getSelectedHandler());
+            selectionKey = innerChannel.register(
+                    selector,
+                    SelectionKey.OP_CONNECT,
+                    selectedHandler);
             innerChannel.connect(connectAddress);
         } else {
             throw new Exception("TCPTunnel protect socket failed.");
@@ -44,24 +61,6 @@ public class TCPTunnel {
 
     public void setInterceptor(TunnelInterceptor interceptor) {
         this.interceptor = interceptor;
-    }
-
-    public SelectHandler getSelectedHandler(){
-        if (selectedHandler == null){
-            selectedHandler = new SelectHandler() {
-                @Override
-                public void onSelected(SelectionKey key) {
-                    if (key.isReadable()) {
-                        onReadable();
-                    } else if (key.isWritable()) {
-                        onWritable();
-                    } else if (key.isConnectable()) {
-                        onConnectable();
-                    }
-                }
-            };
-        }
-        return selectedHandler;
     }
 
     private void onReadable(){
@@ -117,7 +116,7 @@ public class TCPTunnel {
             selectionKey = innerChannel.register(
                     selector,
                     SelectionKey.OP_READ,
-                    getSelectedHandler());
+                    selectedHandler);
         }else{
             selectionKey.interestOps(selectionKey.interestOps() | SelectionKey.OP_READ);
         }
@@ -190,8 +189,6 @@ public class TCPTunnel {
                     writeCache.clear();
                 }
 
-                /*selectionKey.cancel();
-                selector.selectNow();*/
                 innerChannel.close();
 
                 if (isClosePair && mateTunnel != null) {

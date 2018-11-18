@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">抓包精灵</string>
     <string name="all">抓所有的包</string>
     <string name="ssl">SSL</string>
     <string name="find">抓包</string>

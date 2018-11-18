@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NetworkCapture</string>
+    <string name="app_name">Pcap</string>
     <string name="all">Capture all Packet</string>
     <string name="ssl">SSL</string>
     <string name="find">Capture</string>
