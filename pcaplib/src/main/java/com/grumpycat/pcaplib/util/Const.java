@@ -11,7 +11,7 @@ public interface Const {
     /***************
      *  config
      ***************/
-    boolean LOG_ON = false;
+    boolean LOG_ON = true;
     int MUTE_SIZE = 2560;
     Locale LOCALE = Locale.CHINA;
 

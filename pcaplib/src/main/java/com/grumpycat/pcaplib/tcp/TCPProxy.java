@@ -1,5 +1,6 @@
 package com.grumpycat.pcaplib.tcp;
 
+import com.grumpycat.pcaplib.NetProxy;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 
@@ -15,10 +16,10 @@ import java.util.Set;
 /**
  * Created by cc.he on 2018/11/12
  */
-public class TCPProxy{
+public class TCPProxy implements NetProxy{
     private static final String TAG = "TCPProxy";
-    public boolean Stopped;
-    public short port;
+    private boolean Stopped;
+    private short port;
 
     private Selector selector;
     private ServerSocketChannel serverSocketChannel;
@@ -31,6 +32,11 @@ public class TCPProxy{
         serverSocketChannel.socket().bind(new InetSocketAddress(port));
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         this.port = (short) serverSocketChannel.socket().getLocalPort();
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     /**

@@ -14,6 +14,7 @@ import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionID;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.tcp.TCPProxy;
+import com.grumpycat.pcaplib.tcp.TCPProxy2;
 import com.grumpycat.pcaplib.udp.UDPServer;
 import com.grumpycat.pcaplib.util.CommonMethods;
 import com.grumpycat.pcaplib.util.Const;
@@ -47,9 +48,9 @@ public class VpnHelper {
     private FileOutputStream fos;
     private FileInputStream fis;
     private PortService portService;
-    private TCPProxy tcpProxy;
+    private NetProxy tcpProxy;
     private UDPServer udpServer;
-
+    private final boolean isUseNetty = true;
     private void init(){
         buffer = new byte[Const.MUTE_SIZE];
         ipHeader = new IPHeader(buffer, 0);
@@ -74,7 +75,11 @@ public class VpnHelper {
             udpQueue = new ConcurrentLinkedQueue<>();
 
             //启动TCP代理服务
-            tcpProxy = new TCPProxy(0);
+            if (isUseNetty) {
+                tcpProxy = new TCPProxy2(0);
+            } else {
+                tcpProxy = new TCPProxy(0);
+            }
             tcpProxy.start();
             udpServer = new UDPServer(service, udpQueue);
             udpServer.start();
@@ -170,7 +175,7 @@ public class VpnHelper {
         boolean hasWrite;
         //矫正TCPHeader里的偏移量，使它指向真正的TCP数据地址
         tcpHeader.mOffset = ipHeader.getHeaderLength();
-        if (tcpHeader.getSourcePort() == tcpProxy.port) {
+        if (tcpHeader.getSourcePort() == tcpProxy.getPort()) {
             NetSession session = SessionManager.getSession(tcpHeader.getDestinationPort());
             if (session != null) {
                 ipHeader.setSourceIP(ipHeader.getDestinationIP());
@@ -273,7 +278,7 @@ public class VpnHelper {
             //转发给本地TCP服务器
             ipHeader.setSourceIP(ipHeader.getDestinationIP());
             ipHeader.setDestinationIP(VpnMonitor.getLocalIp());
-            tcpHeader.setDestinationPort(tcpProxy.port);
+            tcpHeader.setDestinationPort((short) tcpProxy.getPort());
 
             CommonMethods.ComputeTCPChecksum(ipHeader, tcpHeader);
 
