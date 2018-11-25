@@ -24,6 +24,7 @@ public class VpnMonitor {
     private static StatusListener statusListener;
     private static VpnService vpnService;
     private static Context context;
+    private static int tcpProxyPort;
     public static boolean isVpnRunning() {
         return vpnRunning;
     }
@@ -139,5 +140,13 @@ public class VpnMonitor {
         SSLEngine sslEngine = sslContext.createSSLEngine();
         sslEngine.setUseClientMode(isClientMode);
         return sslEngine;
+    }
+
+    public static void setTcpProxyPort(int tcpProxyPort) {
+        VpnMonitor.tcpProxyPort = tcpProxyPort;
+    }
+
+    public static int getTcpProxyPort() {
+        return tcpProxyPort;
     }
 }

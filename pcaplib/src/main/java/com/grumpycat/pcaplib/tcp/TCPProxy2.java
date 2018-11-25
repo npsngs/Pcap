@@ -61,6 +61,7 @@ public class TCPProxy2 implements NetProxy {
             channel = bindFuture.channel();
             NioServerSocketChannel ns = (NioServerSocketChannel) channel;
             port = ns.localAddress().getPort();
+            VpnMonitor.setTcpProxyPort(port);
             channel
                     .closeFuture()
                     .addListener(new CloseListener());

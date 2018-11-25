@@ -30,7 +30,12 @@
             android:gravity="center"
             android:text="@string/all"
             tools:text="腾讯" />
-
+        <TextView
+            android:gravity="center"
+            android:id="@+id/tv_info"
+            android:layout_toLeftOf="@+id/package_id"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp" />
         <ImageView
             android:id="@+id/vpn"
             android:layout_width="40dp"

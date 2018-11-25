@@ -58,7 +58,6 @@ public class VpnHelper {
     }
 
     public void launchVpnThread(){
-        VpnMonitor.setVpnRunning(true);
         new Thread("VPN-Service"){
             @Override
             public void run() {
@@ -99,6 +98,7 @@ public class VpnHelper {
 
 
     private void startLoop() throws Exception{
+        VpnMonitor.setVpnRunning(true);
         while (VpnMonitor.isVpnRunning()){
             boolean hasWrite = false;
             int size = fis.read(buffer);

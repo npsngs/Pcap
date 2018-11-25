@@ -56,7 +56,10 @@ public class VPNCaptureActivity extends FragmentActivity {
     private VpnMonitor.StatusListener statusListener = new VpnMonitor.StatusListener() {
         @Override
         public void onVpnStart() {
-            handler.post(()->vpnButton.setImageResource(R.mipmap.ic_stop));
+            handler.post(() -> {
+                tv_info.setText(VpnMonitor.getTcpProxyPort()+"");
+                vpnButton.setImageResource(R.mipmap.ic_stop);
+            });
         }
 
         @Override
@@ -68,7 +71,7 @@ public class VPNCaptureActivity extends FragmentActivity {
 
 
     private ImageView vpnButton;
-    private TextView packageId;
+    private TextView packageId,tv_info;
     private SharedPreferences sharedPreferences;
     private String selectPackage;
     private String selectName;
@@ -92,7 +95,7 @@ public class VPNCaptureActivity extends FragmentActivity {
           }
         });
         packageId = findViewById(R.id.package_id);
-
+        tv_info = findViewById(R.id.tv_info);
         sharedPreferences = getSharedPreferences(VPN_SP_NAME, MODE_PRIVATE);
         selectPackage = sharedPreferences.getString(DEFAULT_PACKAGE_ID, null);
         selectName = sharedPreferences.getString(DEFAULT_PACKAGE_NAME, null);
