@@ -38,6 +38,9 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onReceived(ByteBuffer data) {
+        if(data == null){
+            return;
+        }
         refreshSessionAfterRead(data.limit());
         TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
                 .SaveData
@@ -56,6 +59,9 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onSend(ByteBuffer data) {
+        if(data == null){
+            return;
+        }
         TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
                 .SaveData
                 .Builder()

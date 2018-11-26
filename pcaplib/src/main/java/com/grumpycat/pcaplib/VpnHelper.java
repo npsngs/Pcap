@@ -75,9 +75,9 @@ public class VpnHelper {
 
             //启动TCP代理服务
             if (isUseNetty) {
-                tcpProxy = new TCPProxy2(0);
+                tcpProxy = new TCPProxy2();
             } else {
-                tcpProxy = new TCPProxy(0);
+                tcpProxy = new TCPProxy();
             }
             tcpProxy.start();
             udpServer = new UDPServer(service, udpQueue);

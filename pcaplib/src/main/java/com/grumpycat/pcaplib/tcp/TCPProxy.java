@@ -1,6 +1,7 @@
 package com.grumpycat.pcaplib.tcp;
 
 import com.grumpycat.pcaplib.NetProxy;
+import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 
@@ -24,18 +25,19 @@ public class TCPProxy implements NetProxy{
     private Selector selector;
     private ServerSocketChannel serverSocketChannel;
 
-    public TCPProxy(int port) throws IOException {
+    public TCPProxy() throws IOException {
         selector = Selector.open();
 
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.configureBlocking(false);
-        serverSocketChannel.socket().bind(new InetSocketAddress(port));
+        serverSocketChannel.socket().bind(new InetSocketAddress(0));
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         this.port = (short) serverSocketChannel.socket().getLocalPort();
+        VpnMonitor.setTcpProxyPort(port & 0xFFFF);
     }
 
     @Override
-    public int getPort() {
+    public short getPort() {
         return port;
     }
 

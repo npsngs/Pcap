@@ -5,17 +5,19 @@ import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLEngine;
 
+import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,17 +34,14 @@ import io.netty.handler.ssl.SslHandler;
  * Created by cc.he on 2018/11/23
  */
 public class TCPProxy2 implements NetProxy {
-    private int port;
     private NioEventLoopGroup boss;
     private NioEventLoopGroup worker;
     private Channel channel;
 
-    public TCPProxy2(int port) {
-        this.port = port;
-    }
 
+    private short port;
     @Override
-    public int getPort() {
+    public short getPort() {
         return port;
     }
 
@@ -51,24 +50,22 @@ public class TCPProxy2 implements NetProxy {
         boss = new NioEventLoopGroup(1);
         worker = new NioEventLoopGroup();
         try {
-            ChannelFuture bindFuture = new ServerBootstrap()
-                    .channel(NioServerSocketChannel.class)
-                    .group(boss, worker)
-                    .childHandler(new ChildInitHandler())
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .bind(port).sync();
+           ChannelFuture bindFuture = new ServerBootstrap()
+                .channel(NioServerSocketChannel.class)
+                .group(boss, worker)
+                .childHandler(new ChildInitHandler())
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .bind(port).sync();
             channel = bindFuture.channel();
             NioServerSocketChannel ns = (NioServerSocketChannel) channel;
-            port = ns.localAddress().getPort();
-            VpnMonitor.setTcpProxyPort(port);
+            port = (short) ns.localAddress().getPort();
+            VpnMonitor.setTcpProxyPort(port & 0xFFFF);
             channel
                     .closeFuture()
                     .addListener(new CloseListener());
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -119,30 +116,56 @@ public class TCPProxy2 implements NetProxy {
         }
     }
 
+    private boolean protectChannelSocket(Bootstrap bootstrap){
+        try {
+            Class bcls = AbstractBootstrap.class;
+            Field fdcf = bcls.getDeclaredField("channelFactory");
+            fdcf.setAccessible(true);
+            ChannelFactory cf = (ChannelFactory) fdcf.get(bootstrap);
+            fdcf.set(bootstrap, null);
+            NewChannelInvocationHandler handler = new NewChannelInvocationHandler();
+
+            ChannelFactory proxy = (ChannelFactory) handler.getInstance(cf);
+            bootstrap.channelFactory(proxy);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 
     private class DataHandler extends ChannelInboundHandlerAdapter {
         private boolean isSSL;
         private Channel remoteChannel;
+        private TunnelInterceptor interceptor;
         public DataHandler(boolean isSSL) {
             this.isSSL = isSSL;
         }
 
 
         @Override
-        public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if(remoteChannel == null){
-                NioSocketChannel channel = (NioSocketChannel) ctx.channel();
-                int portKey = channel.remoteAddress().getPort();
+                final NioSocketChannel localChannel = (NioSocketChannel) ctx.channel();
+                int portKey = localChannel.remoteAddress().getPort();
+                interceptor = new SessionInterceptor((short) portKey);
                 NetSession session = SessionManager.getSession(portKey);
                 if (session != null) {
                     SocketAddress address = new InetSocketAddress(
-                            channel.remoteAddress().getAddress(),
+                            localChannel.remoteAddress().getAddress(),
                             session.getRemotePort());
 
-                    Bootstrap bootstrap = new Bootstrap();
-                    ChannelFuture future = bootstrap.channel(NioSocketChannel.class)
+                    Bootstrap bootstrap = new Bootstrap()
+                            .channel(NioSocketChannel.class);
+                    boolean isSuccess = protectChannelSocket(bootstrap);
+                    if(!isSuccess){
+                        return;
+                    }
+
+                    ChannelFuture future = bootstrap
                             .group(worker)
-                            .option(ChannelOption.SO_KEEPALIVE, true)
                             .handler(new ChannelInitializer<SocketChannel>(){
                                 @Override
                                 protected void initChannel(SocketChannel ch) throws Exception {
@@ -150,50 +173,101 @@ public class TCPProxy2 implements NetProxy {
                                         SSLEngine sslEngine = VpnMonitor.createSslEngine(true);
                                         ch.pipeline().addLast(new SslHandler(sslEngine));
                                     }
-                                    ch.pipeline().addLast(new TunnelHandler(ctx.channel()));
+                                    ch.pipeline().addLast(new TunnelHandler(localChannel, interceptor));
                                 }
                             })
                             .connect(address)
                             .sync();
                     remoteChannel = future.channel();
-                    Socket socket = getSocket((NioSocketChannel) remoteChannel);
-                    if(socket != null){
-                        VpnMonitor.protect(socket);
-                    }
                 }
+            }
+
+            if(interceptor != null){
+                interceptor.onSend(readData(msg));
             }
             remoteChannel.write(msg);
             remoteChannel.flush();
         }
-    }
 
-
-    private class TunnelHandler extends ChannelInboundHandlerAdapter {
-        private Channel localChannel;
-
-        public TunnelHandler(Channel localChannel) {
-            this.localChannel = localChannel;
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            super.exceptionCaught(ctx, cause);
+            ctx.channel().close();
+            if(remoteChannel != null){
+                remoteChannel.close();
+                remoteChannel = null;
+            }
+            if(interceptor != null){
+                interceptor.onClosed();
+                interceptor = null;
+            }
         }
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            localChannel.write(msg);
-            localChannel.flush();
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            super.channelInactive(ctx);
+            ctx.channel().close();
+            if(remoteChannel != null){
+                remoteChannel.close();
+                remoteChannel = null;
+            }
+            if(interceptor != null){
+                interceptor.onClosed();
+                interceptor = null;
+            }
         }
     }
 
 
-    private Socket getSocket(NioSocketChannel channel){
+    private ByteBuffer readData(Object msg){
         try {
-            Class<NioSocketChannel> cls = NioSocketChannel.class;
-            Method mtd = cls.getDeclaredMethod("javaChannel");
-            mtd.setAccessible(true);
-            Object obj = mtd.invoke(channel);
-            java.nio.channels.SocketChannel ssc = (java.nio.channels.SocketChannel) obj;
-            return ssc.socket();
+            ByteBuf byteBuf = (ByteBuf) msg;
+            ByteBuffer buffer = ByteBuffer.allocate(byteBuf.writerIndex());
+            byteBuf.readBytes(buffer);
+            byteBuf.readerIndex(0);
+            return buffer;
         }catch (Exception e){
             e.printStackTrace();
         }
         return null;
+    }
+
+    private class TunnelHandler extends ChannelInboundHandlerAdapter {
+        private Channel localChannel;
+        private TunnelInterceptor interceptor;
+
+        public TunnelHandler(Channel localChannel, TunnelInterceptor interceptor) {
+            this.localChannel = localChannel;
+            this.interceptor = interceptor;
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            if(interceptor != null) {
+                interceptor.onReceived(readData(msg));
+            }
+            localChannel.write(msg);
+            localChannel.flush();
+        }
+
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            super.channelInactive(ctx);
+            if(localChannel != null){
+                localChannel.close();
+                localChannel = null;
+            }
+            ctx.channel().close();
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            super.exceptionCaught(ctx, cause);
+            if(localChannel != null){
+                localChannel.close();
+                localChannel = null;
+            }
+            ctx.channel().close();
+        }
     }
 }
