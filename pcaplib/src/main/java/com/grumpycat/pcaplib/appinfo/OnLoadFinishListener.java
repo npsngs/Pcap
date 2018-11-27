@@ -1,4 +1,4 @@
-package com.grumpycat.pcap.appinfo;
+package com.grumpycat.pcaplib.appinfo;
 
 /**
  * Created by cc.he on 2018/11/13

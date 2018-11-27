@@ -3,9 +3,12 @@ package com.grumpycat.pcaplib;
 import android.content.Context;
 import android.net.VpnService;
 
+import com.grumpycat.pcaplib.appinfo.AppManager;
+
 import java.io.InputStream;
 import java.net.Socket;
 import java.security.KeyStore;
+import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -18,13 +21,15 @@ public class VpnMonitor {
     private static volatile boolean vpnRunning = false;
     private static int receiveBytes;
     private static int sendBytes;
-    private static String allowPackageName;
+    private static List<String> allowPackages;
     private static int localIp;
     private static String vpnStartTime;
     private static StatusListener statusListener;
     private static VpnService vpnService;
     private static Context context;
     private static int tcpProxyPort;
+    private static boolean isSingleApp;
+    private static int singleAppUid;
     public static boolean isVpnRunning() {
         return vpnRunning;
     }
@@ -64,12 +69,22 @@ public class VpnMonitor {
     }
 
 
-    public static void setAllowPackageName(String allowPackageName) {
-        VpnMonitor.allowPackageName = allowPackageName;
+    public static List<String> getAllowPackages() {
+        return allowPackages;
     }
 
-    public static String getAllowPackageName() {
-        return allowPackageName;
+    public static int getSingleAppUid() {
+        return singleAppUid;
+    }
+
+    public static void setAllowUids(int[] uids) {
+        VpnMonitor.allowPackages = AppManager.queryPackages(uids);
+        if(allowPackages != null && allowPackages.size() == 1){
+            singleAppUid = uids[0];
+            isSingleApp = true;
+        }else{
+            isSingleApp = false;
+        }
     }
 
     public static int getLocalIp() {
@@ -78,6 +93,10 @@ public class VpnMonitor {
 
     public static void setLocalIp(int localIp) {
         VpnMonitor.localIp = localIp;
+    }
+
+    public static boolean isSingleApp() {
+        return isSingleApp;
     }
 
     public static String getVpnStartTime() {

@@ -34,8 +34,9 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.grumpycat.pcap.appinfo.AppInfo;
-import com.grumpycat.pcap.appinfo.AppManager;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
+import com.grumpycat.pcap.ui.main.AppListActivity;
 import com.grumpycat.pcaplib.VpnController;
 import com.grumpycat.pcaplib.VpnMonitor;
 
@@ -102,7 +103,7 @@ public class VPNCaptureActivity extends FragmentActivity {
         packageId.setText(selectName != null ? selectName :
                 selectPackage != null ? selectPackage : getString(R.string.all));
 
-        VpnMonitor.setAllowPackageName(selectPackage);
+        /*VpnMonitor.setAllowPackageName(selectPackage);*/
 
         vpnButton.setEnabled(true);
         //  summerState = findViewById(R.id.summer_state);
@@ -129,12 +130,12 @@ public class VPNCaptureActivity extends FragmentActivity {
         }
         handler = new Handler();
         VpnMonitor.setStatusListener(statusListener);
-        new Thread(){
+        /*new Thread(){
             @Override
             public void run() {
                 AppManager.loadAppInfo(getApplication());
             }
-        }.start();
+        }.start();*/
     }
 
     private void requestStoragePermission() {
@@ -278,11 +279,11 @@ public class VPNCaptureActivity extends FragmentActivity {
             int appUid = data.getIntExtra("app_uid", 0);
             AppInfo appInfo = AppManager.getApp(appUid);
             if (appInfo == null) {
-                VpnMonitor.setAllowPackageName(null);
+                /*VpnMonitor.setAllowPackageName(null);*/
                 selectPackage = null;
                 selectName = null;
             } else {
-                VpnMonitor.setAllowPackageName(appInfo.pkgName);
+                /*VpnMonitor.setAllowPackageName(appInfo.pkgName);*/
                 selectPackage = appInfo.pkgName;
                 selectName = appInfo.name;
             }

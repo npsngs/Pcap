@@ -7,8 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.grumpycat.pcap.appinfo.AppInfo;
-import com.grumpycat.pcap.appinfo.AppManager;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.protocol.HttpHeader;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.Const;

@@ -10,8 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-import com.grumpycat.pcap.appinfo.AppInfo;
-import com.grumpycat.pcap.appinfo.AppManager;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;

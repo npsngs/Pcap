@@ -149,15 +149,19 @@ public class VpnHelper {
                     tcpHeader.getDestinationPort(),
                     Const.UDP);
 
-            portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_UDP) {
-                @Override
-                public void onQueryResult(SessionID sessionID) {
-                    NetSession session = SessionManager.getSession(sessionID.localPort);
-                    if (session != null){
-                        session.setUid(sessionID.uid);
+            if(VpnMonitor.isSingleApp()){
+                session.setUid(VpnMonitor.getSingleAppUid());
+            }else{
+                portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_UDP) {
+                    @Override
+                    public void onQueryResult(SessionID sessionID) {
+                        NetSession session = SessionManager.getSession(sessionID.localPort);
+                        if (session != null){
+                            session.setUid(sessionID.uid);
+                        }
                     }
-                }
-            });
+                });
+            }
         }else{
             session.lastActiveTime = System.currentTimeMillis();
         }
@@ -209,16 +213,19 @@ public class VpnHelper {
                         ipHeader.getDestinationIP(),
                         tcpHeader.getDestinationPort(),
                         Const.TCP);
-
-                portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_TCP) {
-                    @Override
-                    public void onQueryResult(SessionID sessionID) {
-                        NetSession session = SessionManager.getSession((short) sessionID.localPort);
-                        if (session != null){
-                            session.setUid(sessionID.uid);
+                if(VpnMonitor.isSingleApp()){
+                    session.setUid(VpnMonitor.getSingleAppUid());
+                }else {
+                    portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_TCP) {
+                        @Override
+                        public void onQueryResult(SessionID sessionID) {
+                            NetSession session = SessionManager.getSession((short) sessionID.localPort);
+                            if (session != null) {
+                                session.setUid(sessionID.uid);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }else{
                 session.lastActiveTime = System.currentTimeMillis();
             }

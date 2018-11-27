@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/menu"
+    android:background="#c3c3c3"
+    android:layout_gravity="start"
+    android:orientation="vertical"
+    android:layout_width="160dp"
+    android:layout_height="match_parent">
+
+    <TextView
+        style="@style/menu_text_item"
+        android:text="@string/history"
+        android:id="@+id/tv_history"/>
+
+    <TextView
+        style="@style/menu_text_item"
+        android:text="@string/setting"
+        android:id="@+id/tv_setting"/>
+
+    <TextView
+        style="@style/menu_text_item"
+        android:text="@string/instrument"
+        android:id="@+id/tv_instrument"/>
+</LinearLayout>

@@ -17,8 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.grumpycat.pcap.appinfo.AppInfo;
-import com.grumpycat.pcap.appinfo.AppManager;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.data.FileCache;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.Const;

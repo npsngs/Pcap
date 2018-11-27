@@ -13,9 +13,8 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@color/black_DBDBDB"
-
             android:gravity="center"
-            android:text="@string/select_package" />
+            android:text="@string/select_apps" />
 
         <ImageView
             android:id="@+id/back"
@@ -23,6 +22,30 @@
             android:layout_height="match_parent"
             android:scaleType="center"
             android:src="@drawable/back_btn_selector" />
+
+
+        <TextView
+            android:padding="10dp"
+            android:id="@+id/tv_ok"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/black_DBDBDB"
+            android:text="@string/ok" />
+
+
+        <TextView
+            android:padding="10dp"
+            android:id="@+id/tv_all"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/tv_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/black_DBDBDB"
+            android:text="@string/select_all" />
     </RelativeLayout>
 
 

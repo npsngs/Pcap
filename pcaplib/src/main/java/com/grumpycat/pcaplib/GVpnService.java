@@ -10,6 +10,8 @@ import com.grumpycat.pcaplib.util.CommonMethods;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.StrUtil;
 
+import java.util.List;
+
 
 /**
  * Created by cc.he on 2018/11/13
@@ -67,9 +69,11 @@ public class GVpnService extends VpnService {
         builder.addDnsServer(HK_DNS_SECOND);
         builder.addDnsServer(AMERICA);
         try {
-            if (VpnMonitor.getAllowPackageName() != null
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder.addAllowedApplication(VpnMonitor.getAllowPackageName());
+            List<String> packages = VpnMonitor.getAllowPackages();
+            if (packages != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                for(String pkg:packages){
+                    builder.addAllowedApplication(pkg);
+                }
                 builder.addAllowedApplication(getPackageName());
             }
         } catch (Exception e) {

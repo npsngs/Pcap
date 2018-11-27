@@ -1,4 +1,4 @@
-package com.grumpycat.pcap.appinfo;
+package com.grumpycat.pcaplib.appinfo;
 
 import android.graphics.drawable.Drawable;
 
