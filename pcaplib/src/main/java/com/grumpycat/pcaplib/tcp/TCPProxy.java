@@ -149,7 +149,7 @@ public class TCPProxy implements NetProxy{
 
     private InetSocketAddress getRemoteAddress(SocketChannel localChannel) {
         int portKey = localChannel.socket().getPort();
-        NetSession session = SessionManager.getSession(portKey);
+        NetSession session = SessionManager.getInstance().getSession(portKey);
         if (session != null) {
             return new InetSocketAddress(
                     localChannel.socket().getInetAddress(),

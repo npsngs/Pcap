@@ -16,7 +16,7 @@ import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +82,7 @@ public class CaptureFragment extends BaseFragment {
             }
 
             String dir = Const.DATA_DIR
-                    + VpnMonitor.getVpnStartTime()
+                    + VpnMonitor.getVpnStartTimeStr()
                     + "/"
                     + connection.hashCode();
             PacketDetailActivity.startActivity(getActivity(), dir);
@@ -99,8 +99,8 @@ public class CaptureFragment extends BaseFragment {
         if (!VpnMonitor.isVpnRunning()) {
             return;
         }
-        ThreadProxy.getInstance().execute(() -> {
-            allNetConnection = SessionManager.loadAllSession();
+        ThreadPool.execute(() -> {
+            allNetConnection = SessionManager.getInstance().loadAllSession();
             if (allNetConnection == null) {
                 handler.post(() -> refreshView(allNetConnection));
                 return;

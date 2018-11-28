@@ -15,7 +15,7 @@ import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.tcp.SelectHandler;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.IOUtils;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,13 +59,13 @@ public class UDPTunnel implements SelectHandler {
         ipAndPort = packet.getIpAndPort();
         this.outputQueue = outputQueue;
         this.portKey = portKey;
-        session = SessionManager.getSession(portKey);
+        session = SessionManager.getInstance().getSession(portKey);
         handler = new Handler(Looper.getMainLooper());
 
         if (VpnController.isUdpNeedSave()) {
             String helperDir = new StringBuilder()
                     .append(Const.DATA_DIR)
-                    .append(VpnMonitor.getVpnStartTime())
+                    .append(VpnMonitor.getVpnStartTimeStr())
                     .append("/")
                     .append(session.hashCode())
                     .toString();
@@ -195,34 +195,28 @@ public class UDPTunnel implements SelectHandler {
             /*if (session.appInfo == null && PortHostService.getInstance() != null) {
                 PortHostService.getInstance().refreshSessionInfo();
             }*/
-            //需要延迟一秒在保存 等到app信息完全刷新
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ThreadProxy.getInstance().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (session.receiveByte == 0 && session.sendByte == 0) {
-                                return;
-                            }
+            /*//需要延迟一秒在保存 等到app信息完全刷新
 
-                            String configFileDir = Const.CONFIG_DIR
-                                    + VpnMonitor.getVpnStartTime();
-                            File parentFile = new File(configFileDir);
-                            if (!parentFile.exists()) {
-                                parentFile.mkdirs();
-                            }
-                            //说已经存了
-                            File file = new File(parentFile, String.valueOf(session.hashCode()));
-                            if (file.exists()) {
-                                return;
-                            }
-                            FileCache configACache = FileCache.get(parentFile);
-                            configACache.put(String.valueOf(session.hashCode()), session);
-                        }
-                    });
+            ThreadPool.schedule(() -> {
+                if (session.receiveByte == 0 && session.sendByte == 0) {
+                    return;
                 }
-            }, 1000);
+
+                String configFileDir = Const.CONFIG_DIR
+                        + VpnMonitor.getVpnStartTimeStr();
+                File parentFile = new File(configFileDir);
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs();
+                }
+                //说已经存了
+                File file = new File(parentFile, String.valueOf(session.hashCode()));
+                if (file.exists()) {
+                    return;
+                }
+                FileCache configACache = FileCache.get(parentFile);
+                configACache.put(String.valueOf(session.hashCode()), session);
+            }, 1000);*/
+            SessionManager.getInstance().moveToSaveQueue(session);
         } catch (Exception e) {
             Log.w(TAG, "error to close UDP channel IpAndPort" + ipAndPort + ",error is " + e.getMessage());
         }

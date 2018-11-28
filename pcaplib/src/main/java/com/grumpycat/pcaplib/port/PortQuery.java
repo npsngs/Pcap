@@ -7,13 +7,13 @@ import com.grumpycat.pcaplib.session.SessionID;
  */
 public abstract class PortQuery {
     private int port;
-    private int type;
+    private int[] type;
     public final static int TYPE_TCP =     0;
     public final static int TYPE_TCP6 =    1;
     public final static int TYPE_UDP =     2;
     public final static int TYPE_UDP6 =    3;
-    public PortQuery(int port, int type) {
-        this.port = port & 0xFFFF;
+    public PortQuery(int port, int ...type) {
+        this.port = port;
         this.type = type;
     }
 
@@ -21,7 +21,7 @@ public abstract class PortQuery {
         return port;
     }
 
-    public int getType() {
+    public int[] getType() {
         return type;
     }
 

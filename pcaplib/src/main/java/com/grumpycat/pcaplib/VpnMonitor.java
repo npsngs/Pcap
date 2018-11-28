@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.VpnService;
 
 import com.grumpycat.pcaplib.appinfo.AppManager;
+import com.grumpycat.pcaplib.util.StrUtil;
 
 import java.io.InputStream;
 import java.net.Socket;
@@ -23,7 +24,8 @@ public class VpnMonitor {
     private static int sendBytes;
     private static List<String> allowPackages;
     private static int localIp;
-    private static String vpnStartTime;
+    private static long vpnStartTime;
+    private static String vpnStartTimeStr;
     private static StatusListener statusListener;
     private static VpnService vpnService;
     private static Context context;
@@ -99,12 +101,16 @@ public class VpnMonitor {
         return isSingleApp;
     }
 
-    public static String getVpnStartTime() {
-        return vpnStartTime;
+    public static String getVpnStartTimeStr() {
+        return vpnStartTimeStr;
     }
 
-    public static void setVpnStartTime(String vpnStartTime) {
+    public static long getVpnStartTime() {
+        return vpnStartTime;
+    }
+    public static void setVpnStartTime(long vpnStartTime) {
         VpnMonitor.vpnStartTime = vpnStartTime;
+        vpnStartTimeStr = StrUtil.formatYYMMDDHHMMSS(vpnStartTime);
     }
 
     public static void setStatusListener(StatusListener statusListener) {

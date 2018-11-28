@@ -3,12 +3,14 @@ package com.grumpycat.pcaplib.data;
 import android.util.Log;
 
 
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
+
+import static com.grumpycat.pcaplib.util.ThreadPool.execute;
 
 /**
  * @author minhui.zhu
@@ -31,18 +33,14 @@ public class TcpDataSaveHelper {
     }
 
     public void addData(final SaveData data) {
-        ThreadProxy.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (lastSaveData == null || (lastSaveData.isRequest ^ data.isRequest)) {
-                    newFileAndSaveData(data);
-                } else {
-                    appendFileData(data);
-                }
-                lastSaveData = data;
+        ThreadPool.execute(() -> {
+            if (lastSaveData == null || (lastSaveData.isRequest ^ data.isRequest)) {
+                newFileAndSaveData(data);
+            } else {
+                appendFileData(data);
             }
+            lastSaveData = data;
         });
-
     }
 
     private void appendFileData(SaveData data) {

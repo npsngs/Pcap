@@ -151,7 +151,7 @@ public class TCPProxy2 implements NetProxy {
                 final NioSocketChannel localChannel = (NioSocketChannel) ctx.channel();
                 int portKey = localChannel.remoteAddress().getPort();
                 interceptor = new SessionInterceptor((short) portKey);
-                NetSession session = SessionManager.getSession(portKey);
+                NetSession session = SessionManager.getInstance().getSession(portKey);
                 if (session != null) {
                     SocketAddress address = new InetSocketAddress(
                             localChannel.remoteAddress().getAddress(),

@@ -13,45 +13,38 @@ import java.util.List;
  * Created by hechengcheng on 2018/7/20
  */
 public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRecyclerViewHolder<T>> implements BindDataGetter<T>{
-    private List<T> datas;
+    private List<T> data = new ArrayList<>();
     public void setData(List<T> dataList){
-        if (dataList == null || dataList.size() == 0){
-            if (datas != null) {
-                datas.clear();
-                notifyDataSetChanged();
+        data.clear();
+        if (dataList != null && dataList.size() > 0) {
+            for (T t : dataList) {
+                data.add(t);
             }
-            return;
-        }
-
-        if (datas == null){
-            datas = new ArrayList<>();
-        }
-
-        datas.clear();
-        for(T t:dataList){
-            datas.add(t);
         }
         notifyDataSetChanged();
     }
 
 
-    public void appendData(List<T> dataList){
+    public void add(List<T> dataList){
         if (dataList == null || dataList.size() == 0){
             return;
         }
 
-        if (datas == null){
-            datas = new ArrayList<>();
-        }
-
-        int start = datas.size();
-        for(T t:dataList){
-            datas.add(t);
-        }
+        int start = data.size();
+        data.addAll(dataList);
         notifyItemRangeInserted(start, dataList.size());
     }
 
+    public void add(T t){
+        int pos = data.size();
+        data.add(t);
+        notifyItemInserted(pos);
+    }
 
+    public void add(T t, int index){
+        data.add(index, t);
+        notifyItemInserted(index);
+    }
 
 
     @Override
@@ -61,44 +54,40 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
 
     @Override
     public int getItemCount() {
-        return datas==null?0:datas.size();
+        return data ==null?0: data.size();
     }
 
     @Override
     public T getItemData(int index){
-        return datas==null?null:datas.get(index);
+        return data ==null?null: data.get(index);
     }
 
-    public void deleteItem(int index){
-        if (datas !=null && index >=0 && index < datas.size()){
-            datas.remove(index);
+    public void remove(int index){
+        if (data !=null && index >=0 && index < data.size()){
+            data.remove(index);
             notifyItemRemoved(index);
         }
     }
 
-    public List<T> getAllDatas() {
-        if (datas == null){
+    public List<T> getData() {
+        if (data == null){
             return null;
         }
 
-        List<T> results = new ArrayList<>(datas.size());
-        for(T t:datas){
+        List<T> results = new ArrayList<>(data.size());
+        for(T t: data){
             results.add(t);
         }
 
         return results;
     }
 
-    public void removeAllItem(){
-        if (datas != null && datas.size() > 0){
-            datas.clear();
+    public void removeAll(){
+        if (data != null && data.size() > 0){
+            data.clear();
             notifyDataSetChanged();
         }
     }
 
     public abstract View createItemView(@NonNull ViewGroup parent, int viewType);
-
-    protected void onItemClick(int position){
-
-    }
 }

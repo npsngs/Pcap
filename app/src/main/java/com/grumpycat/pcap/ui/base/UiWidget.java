@@ -8,7 +8,9 @@ import android.view.View;
  */
 public class UiWidget {
     private Activity activity;
-
+    public Activity getActivity() {
+        return activity;
+    }
     public UiWidget(Activity activity) {
         this.activity = activity;
     }

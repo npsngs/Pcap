@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.grumpycat.pcaplib.util.SaveDataFileParser;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class PacketDetailActivity extends Activity {
     }
 
     private void refreshView() {
-        ThreadProxy.getInstance().execute(() -> {
+        ThreadPool.execute(() -> {
             File file = new File(dir);
             File[] files = file.listFiles();
             if (files == null || files.length == 0) {

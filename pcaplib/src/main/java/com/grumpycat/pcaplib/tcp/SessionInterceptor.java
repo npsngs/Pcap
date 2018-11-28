@@ -1,19 +1,11 @@
 package com.grumpycat.pcaplib.tcp;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.grumpycat.pcaplib.VpnMonitor;
-import com.grumpycat.pcaplib.data.DataManager;
-import com.grumpycat.pcaplib.data.DataMeta;
-import com.grumpycat.pcaplib.data.FileCache;
 import com.grumpycat.pcaplib.data.TcpDataSaveHelper;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.ThreadProxy;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 
 /**
@@ -22,18 +14,18 @@ import java.nio.ByteBuffer;
 public class SessionInterceptor implements TunnelInterceptor {
     private TcpDataSaveHelper helper;
     private NetSession session;
-    private final Handler handler;
+    /*private final Handler handler;*/
     public SessionInterceptor(short sessionKey) {
-        session = SessionManager.getSession(sessionKey);
+        session = SessionManager.getInstance().getSession(sessionKey);
         String helperDir = new StringBuilder()
                 .append(Const.DATA_DIR)
-                .append(VpnMonitor.getVpnStartTime())
+                .append(VpnMonitor.getVpnStartTimeStr())
                 .append("/")
                 .append(session.hashCode())
                 .toString();
 
         helper = new TcpDataSaveHelper(helperDir);
-        handler = new Handler(Looper.getMainLooper());
+        /*handler = new Handler(Looper.getMainLooper());*/
     }
 
     @Override
@@ -41,7 +33,8 @@ public class SessionInterceptor implements TunnelInterceptor {
         if(data == null){
             return;
         }
-        refreshSessionAfterRead(data.limit());
+        SessionManager.getInstance().addSessionReadBytes(session, data.limit());
+        /*refreshSessionAfterRead(data.limit());*/
         TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
                 .SaveData
                 .Builder()
@@ -78,10 +71,11 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onClosed() {
-        handler.postDelayed(new Runnable() {
+        SessionManager.getInstance().moveToSaveQueue(session);
+       /*handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ThreadProxy.getInstance().execute(new Runnable() {
+                ThreadPool.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
                         if (session.receiveByte == 0 && session.sendByte == 0) {
@@ -89,7 +83,7 @@ public class SessionInterceptor implements TunnelInterceptor {
                         }
 
                         String configFileDir = Const.CONFIG_DIR
-                                + VpnMonitor.getVpnStartTime() ;
+                                + VpnMonitor.getVpnStartTimeStr() ;
                         File parentFile = new File(configFileDir);
                         if (!parentFile.exists()) {
                             parentFile.mkdirs();
@@ -104,11 +98,11 @@ public class SessionInterceptor implements TunnelInterceptor {
                     }
                 });
             }
-        }, 1000);
+        }, 1000);*/
     }
 
-    private void refreshSessionAfterRead(int size) {
+    /*private void refreshSessionAfterRead(int size) {
         session.receivePacket++;
         session.receiveByte += size;
-    }
+    }*/
 }

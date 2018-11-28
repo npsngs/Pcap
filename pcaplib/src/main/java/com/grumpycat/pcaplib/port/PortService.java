@@ -20,7 +20,7 @@ import java.util.Scanner;
  * Created by cc.he on 2018/11/13
  */
 public class PortService {
-    private SparseArray<SessionID> portSessions;
+    protected SparseArray<SessionID> portSessions;
     private Handler handler;
 
     private final static int MSG_TYPE_QUERY =   20;
@@ -42,6 +42,7 @@ public class PortService {
             }
         };
     }
+
     private FileObserver observer;
     public void startObserve(){
         observer = new FileObserver("/proc/net/") {
@@ -60,7 +61,7 @@ public class PortService {
     }
 
     public void asyncQuery(PortQuery query){
-        //handler.obtainMessage(MSG_TYPE_QUERY, query).sendToTarget();
+        handler.obtainMessage(MSG_TYPE_QUERY, query).sendToTarget();
     }
 
     private void query(PortQuery query){
@@ -72,47 +73,50 @@ public class PortService {
         load(query);
     }
 
-    private void load(PortQuery query){
-        int type = query.getType();
-        String filePath = PortQuery.getParseFilePath(type);
-        if (filePath == null) {
-            return;
-        }
+    protected void load(PortQuery query){
+        int[] types = query.getType();
+        for(int type:types){
+            String filePath = PortQuery.getParseFilePath(type);
+            if (filePath == null) {
+                return;
+            }
 
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(filePath);
-            Scanner scanner = new Scanner(fis);
-            scanner.useDelimiter("\n");
-            String lineStr;
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(filePath);
+                Scanner scanner = new Scanner(fis);
+                scanner.useDelimiter("\n");
+                String lineStr;
 
 
-            if(scanner.hasNextLine()){
-                //丢弃第一行
-                scanner.nextLine();
-                while (scanner.hasNextLine()) {
-                    lineStr = scanner.nextLine();
-                    SessionID sessionID = parseLineStr(lineStr);
-                    if (sessionID == null){
-                        continue;
+                if(scanner.hasNextLine()){
+                    //丢弃第一行
+                    scanner.nextLine();
+                    while (scanner.hasNextLine()) {
+                        lineStr = scanner.nextLine();
+                        Log.e("lst",lineStr);
+                        SessionID sessionID = parseLineStr(lineStr);
+                        if (sessionID == null){
+                            continue;
+                        }
+                        sessionID.type = PortQuery.getProtocolStr(type);
+                        portSessions.put(sessionID.localPort, sessionID);
                     }
-                    sessionID.type = PortQuery.getProtocolStr(type);
-                    portSessions.put(sessionID.localPort, sessionID);
                 }
-            }
 
-            SessionID sessionID = portSessions.get(query.getPort());
-            if(sessionID != null){
-                query.onQueryResult(sessionID);
+                SessionID sessionID = portSessions.get(query.getPort());
+                if(sessionID != null){
+                    query.onQueryResult(sessionID);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }finally {
+                IOUtils.safeClose(fis);
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }finally {
-            IOUtils.safeClose(fis);
         }
     }
 
-    private SessionID parseLineStr(String lineStr) {
+    protected SessionID parseLineStr(String lineStr) {
         String itemStr[] = lineStr.split("\\s+");
         if (itemStr.length < 9){
             return null;

@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class PackageListActivity extends Activity {
 
         pm = getPackageManager();
         packageListView = findViewById(R.id.package_list);
-        ThreadProxy.getInstance().execute(new Runnable() {
+        ThreadPool.execute(new Runnable() {
 
             private ShowPackageAdapter showPackageAdapter;
 
@@ -116,7 +116,7 @@ public class PackageListActivity extends Activity {
             }
             holder.icon.setImageDrawable(defaultDrawable);
             final View alertIconView = convertView;
-            ThreadProxy.getInstance().execute(() -> {
+            ThreadPool.execute(() -> {
                 Holder iconHolder = (Holder) alertIconView.getTag();
                 if (iconHolder.holderPosition != position) {
                     return;

@@ -83,7 +83,7 @@ public class VpnHelper {
             udpServer = new UDPServer(service, udpQueue);
             udpServer.start();
 
-            SessionManager.clearAllSession();
+            SessionManager.getInstance().reset();
             descriptor = service.establishVpn();
             fos = new FileOutputStream(descriptor.getFileDescriptor());
             fis = new FileInputStream(descriptor.getFileDescriptor());
@@ -140,10 +140,11 @@ public class VpnHelper {
     private void onUdpPacketReceived(IPHeader ipHeader, int size) throws UnknownHostException {
         short portKey = tcpHeader.getSourcePort();
 
-        NetSession session = SessionManager.getSession(portKey);
+
+        NetSession session = SessionManager.getInstance().getSession(portKey);
         if (session == null || session.getRemoteIp() != ipHeader.getDestinationIP()
                 || session.getRemotePort() != tcpHeader.getDestinationPort()) {
-            session = SessionManager.createSession(
+            session = SessionManager.getInstance().createSession(
                     portKey,
                     ipHeader.getDestinationIP(),
                     tcpHeader.getDestinationPort(),
@@ -152,10 +153,10 @@ public class VpnHelper {
             if(VpnMonitor.isSingleApp()){
                 session.setUid(VpnMonitor.getSingleAppUid());
             }else{
-                portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_UDP) {
+                portService.asyncQuery(new PortQuery(portKey & 0xFFFF, PortQuery.TYPE_UDP) {
                     @Override
                     public void onQueryResult(SessionID sessionID) {
-                        NetSession session = SessionManager.getSession(sessionID.localPort);
+                        NetSession session = SessionManager.getInstance().getSession(sessionID.localPort);
                         if (session != null){
                             session.setUid(sessionID.uid);
                         }
@@ -180,7 +181,7 @@ public class VpnHelper {
         //矫正TCPHeader里的偏移量，使它指向真正的TCP数据地址
         tcpHeader.mOffset = ipHeader.getHeaderLength();
         if (tcpHeader.getSourcePort() == tcpProxy.getPort()) {
-            NetSession session = SessionManager.getSession(tcpHeader.getDestinationPort());
+            NetSession session = SessionManager.getInstance().getSession(tcpHeader.getDestinationPort());
             if (session != null) {
                 ipHeader.setSourceIP(ipHeader.getDestinationIP());
                 tcpHeader.setSourcePort((short) session.getRemotePort());
@@ -205,10 +206,10 @@ public class VpnHelper {
         } else {
             //添加端口映射
             short portKey = tcpHeader.getSourcePort();
-            NetSession session = SessionManager.getSession(portKey);
+            NetSession session = SessionManager.getInstance().getSession(portKey);
             if (session == null || session.getRemoteIp() != ipHeader.getDestinationIP()
                     || session.getRemotePort() != tcpHeader.getDestinationPort()) {
-                session = SessionManager.createSession(
+                session = SessionManager.getInstance().createSession(
                         portKey,
                         ipHeader.getDestinationIP(),
                         tcpHeader.getDestinationPort(),
@@ -216,10 +217,11 @@ public class VpnHelper {
                 if(VpnMonitor.isSingleApp()){
                     session.setUid(VpnMonitor.getSingleAppUid());
                 }else {
-                    portService.asyncQuery(new PortQuery(portKey, PortQuery.TYPE_TCP) {
+                    portService.asyncQuery(new PortQuery(portKey & 0xFFFF,
+                            PortQuery.TYPE_TCP,PortQuery.TYPE_TCP6) {
                         @Override
                         public void onQueryResult(SessionID sessionID) {
-                            NetSession session = SessionManager.getSession((short) sessionID.localPort);
+                            NetSession session = SessionManager.getInstance().getSession((short) sessionID.localPort);
                             if (session != null) {
                                 session.setUid(sessionID.uid);
                             }
@@ -285,14 +287,14 @@ public class VpnHelper {
             //转发给本地TCP服务器
             ipHeader.setSourceIP(ipHeader.getDestinationIP());
             ipHeader.setDestinationIP(VpnMonitor.getLocalIp());
-            tcpHeader.setDestinationPort((short) tcpProxy.getPort());
+            tcpHeader.setDestinationPort(tcpProxy.getPort());
 
             CommonMethods.ComputeTCPChecksum(ipHeader, tcpHeader);
 
 
             fos.write(ipHeader.mData, ipHeader.mOffset, size);
             //注意顺序
-            session.sendByte += tcpDataSize;
+            SessionManager.getInstance().addSessionSendBytes(session, tcpDataSize);
             VpnMonitor.addSendBytes(size);
         }
         hasWrite = true;

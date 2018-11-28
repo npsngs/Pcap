@@ -17,6 +17,8 @@ public interface Const {
 
     /*会话保存的数量上限*/
     int SESSION_MAX_COUNT = 64;
+    int SESSION_MAX_SAVE_QUEUE = 32;
+
     /*会话保存的时间上限*/
     long SESSION_MAX_TIMEOUT = 60 * 1000L;
 

@@ -34,7 +34,7 @@ public class AppInfoBar extends UiWidget{
         if(uids == null || uids.length == 0){
             iv_icon.setBackgroundColor(0xff556677);
             tv_app_name.setText("All App");
-            VpnMonitor.setAllowPackages(null);
+            VpnMonitor.setAllowUids(null);
         }else{
 
             if(uids.length == 1){
@@ -45,13 +45,7 @@ public class AppInfoBar extends UiWidget{
                 iv_icon.setBackgroundColor(0xff556677);
                 tv_app_name.setText("Multi App");
             }
-
-            List<String> allowApps = new ArrayList<>(uids.length);
-            for(int uid:uids){
-                AppInfo appInfo = AppManager.getApp(uid);
-                allowApps.add(appInfo.pkgName);
-            }
-            VpnMonitor.setAllowPackages(allowApps);
+            VpnMonitor.setAllowUids(uids);
         }
     }
 }

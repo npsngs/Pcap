@@ -9,18 +9,15 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
 import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.StrUtil;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
-import java.io.FileFilter;
 
 /**
  * @author minhui.zhu
@@ -48,23 +45,16 @@ public class SettingFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.clear_cache_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isDeleting) {
-                    return;
-                }
-                isDeleting = true;
-                pb.setVisibility(View.VISIBLE);
-                clearHistoryData();
+        view.findViewById(R.id.clear_cache_container).setOnClickListener(v -> {
+            if (isDeleting) {
+                return;
             }
+            isDeleting = true;
+            pb.setVisibility(View.VISIBLE);
+            clearHistoryData();
         });
-        view.findViewById(R.id.about_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), AboutActivity.class));
-            }
-        });
+        view.findViewById(R.id.about_container)
+                .setOnClickListener(v -> startActivity(new Intent(getActivity(), AboutActivity.class)));
         cbShowUDP = view.findViewById(R.id.show_udp);
         cbSaveUDP = view.findViewById(R.id.save_udp);
         sp = getContext().getSharedPreferences(Const.VPN_SP_NAME, Context.MODE_PRIVATE);
@@ -89,7 +79,7 @@ public class SettingFragment extends BaseFragment {
     private boolean isDeleting;
 
     private void clearHistoryData() {
-        ThreadProxy.getInstance().execute(() -> {
+        ThreadPool.execute(() -> {
 
             File file = new File(Const.BASE_DIR);
             FileUtils.deleteFile(file, pathname -> {
@@ -100,7 +90,7 @@ public class SettingFragment extends BaseFragment {
                     return false;
                 }
 
-                String lastVpnStartTimeStr = VpnMonitor.getVpnStartTime();
+                String lastVpnStartTimeStr = VpnMonitor.getVpnStartTimeStr();
 
                 String absolutePath = pathname.getAbsolutePath();
                 //如果所选择文件是最近一次产生的，则不删除
@@ -111,10 +101,7 @@ public class SettingFragment extends BaseFragment {
                 pb.setVisibility(View.GONE);
                 showMessage(getString(R.string.success_clear_history_data));
             });
-
         });
-
-
     }
 
     private void showMessage(String string) {

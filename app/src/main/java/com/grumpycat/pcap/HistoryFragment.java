@@ -13,12 +13,11 @@ import android.widget.TextView;
 
 
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -60,7 +59,7 @@ public class HistoryFragment extends BaseFragment {
     }
 
     private void getDataAndRefreshView() {
-        ThreadProxy.getInstance().execute(() -> {
+        ThreadPool.execute(() -> {
             File file = new File(Const.CONFIG_DIR);
             File[] files = file.listFiles();
             if(files==null||files.length==0){

@@ -8,7 +8,6 @@ import android.os.ParcelFileDescriptor;
 import com.grumpycat.pcaplib.data.DataManager;
 import com.grumpycat.pcaplib.util.CommonMethods;
 import com.grumpycat.pcaplib.util.Const;
-import com.grumpycat.pcaplib.util.StrUtil;
 
 import java.util.List;
 
@@ -58,8 +57,8 @@ public class GVpnService extends VpnService {
         builder.setMtu(Const.MUTE_SIZE);
 
         VpnMonitor.setLocalIp(CommonMethods.ipStringToInt("10.8.0.2"));
-        VpnMonitor.setVpnStartTime(StrUtil.formatYYMMDDHHMMSS(System.currentTimeMillis()));
-        DataManager.getInstance().setCurDir(VpnMonitor.getVpnStartTime());
+        VpnMonitor.setVpnStartTime(System.currentTimeMillis());
+        DataManager.getInstance().setCurDir(VpnMonitor.getVpnStartTimeStr());
         builder.addAddress("10.8.0.2", 32);
         builder.addRoute(VPN_ROUTE, 0);
 

@@ -23,7 +23,7 @@ import com.grumpycat.pcaplib.data.FileCache;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.StrUtil;
-import com.grumpycat.pcaplib.util.ThreadProxy;
+import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class ConnectionListActivity extends Activity {
     }
 
     private void getDataAndRefreshView() {
-        ThreadProxy.getInstance().execute(() -> {
+        ThreadPool.execute(() -> {
             baseNetSessions = new ArrayList<>();
             File file = new File(fileDir);
             FileCache aCache = FileCache.get(file);
@@ -201,7 +201,7 @@ public class ConnectionListActivity extends Activity {
 
     private void startPacketDetailActivity(NetSession connection) {
         String dir = Const.DATA_DIR
-                + connection.getVpnStartTime()
+                + StrUtil.formatYYMMDDHHMMSS(connection.getVpnStartTime())
                 + "/"
                 + connection.hashCode();
         PacketDetailActivity.startActivity(this, dir);

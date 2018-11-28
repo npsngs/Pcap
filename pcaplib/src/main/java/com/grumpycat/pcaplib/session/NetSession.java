@@ -13,22 +13,24 @@ import java.util.List;
 /**
  * Created by cc.he on 2018/11/14
  */
-public class NetSession implements Serializable {
+public class NetSession implements Serializable , Cloneable{
     private int uid;
     private int protocol;
     private int portKey;
     private int remoteIp;
     private int remotePort;
     private long startTime;
-    private HttpHeader httpHeader;
-    private String vpnStartTime;
 
     public long sendByte;
     public int sendPacket;
     public long receiveByte;
     public int receivePacket;
     public long lastActiveTime;
+    private long vpnStartTime;
+    private HttpHeader httpHeader;
+    private int hashCode = 0;
 
+    private transient int serialNumber;
     private transient List<DataMeta> dataMetas;
 
     public NetSession(int protocol) {
@@ -88,6 +90,14 @@ public class NetSession implements Serializable {
         return startTime;
     }
 
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(int serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
     public boolean isTcp(){
         return protocol == Const.TCP
                 || protocol == Const.HTTP
@@ -102,11 +112,11 @@ public class NetSession implements Serializable {
         return httpHeader;
     }
 
-    public String getVpnStartTime() {
+    public long getVpnStartTime() {
         return vpnStartTime;
     }
 
-    public void setVpnStartTime(String vpnStartTime) {
+    public void setVpnStartTime(long vpnStartTime) {
         this.vpnStartTime = vpnStartTime;
     }
 
@@ -121,13 +131,25 @@ public class NetSession implements Serializable {
         dataMetas.add(dataMeta);
     }
 
+    public String getExtras(){
+        if(httpHeader == null){
+            return null;
+        }
+        return httpHeader.toJson();
+    }
+
+
+
     @Override
     public int hashCode() {
-        int hash = portKey*31;
-        hash += remoteIp*17;
-        hash += remotePort*7;
-        hash += (startTime & 0xFFFF);
-        return hash;
+        if(hashCode == 0){
+            int hash = portKey*37;
+            hash += remoteIp*17;
+            hash += remotePort*7;
+            hash += (startTime & 0xFFFF);
+            hashCode = hash;
+        }
+        return hashCode;
     }
 
     @Override
@@ -137,6 +159,52 @@ public class NetSession implements Serializable {
                 StrUtil.ip2Str(remoteIp),
                 remotePort & 0xFFFF,
                 sendByte, sendPacket, receiveByte, receivePacket);
+    }
+
+    public NetSession copy(){
+        try {
+            return (NetSession) this.clone();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        NetSession ret = new NetSession(this.protocol);
+        ret.set(this);
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof NetSession){
+            return hashCode() == obj.hashCode();
+        }
+        return false;
+    }
+
+    public void set(NetSession session){
+        this.uid = session.uid;
+        this.protocol = session.protocol;
+        this.portKey = session.portKey;
+        this.remoteIp = session.remoteIp;
+        this.remotePort = session.remotePort;
+        this.startTime = session.startTime;
+        this.hashCode = session.hashCode;
+        this.sendByte = session.sendByte;
+        this.sendPacket = session.sendPacket;
+        this.receiveByte = session.receiveByte;
+        this.receivePacket = session.receivePacket;
+        this.lastActiveTime = session.lastActiveTime;
+        this.vpnStartTime = session.vpnStartTime;
+        if(this.httpHeader == null && session.httpHeader !=null){
+            this.httpHeader = session.httpHeader.copy();
+        }else if(session.httpHeader == null){
+            this.httpHeader = null;
+        }else {
+            this.httpHeader.set(session.httpHeader);
+        }
+    }
+
+    public boolean hasData(){
+       return receiveByte != 0 || sendByte != 0;
     }
 
     public static class SessionComparator implements Comparator<NetSession> {
