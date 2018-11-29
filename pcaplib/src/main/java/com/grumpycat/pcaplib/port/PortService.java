@@ -12,8 +12,10 @@ import android.util.SparseArray;
 import com.grumpycat.pcaplib.session.SessionID;
 import com.grumpycat.pcaplib.util.IOUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Scanner;
 
 /**
@@ -94,7 +96,6 @@ public class PortService {
                     scanner.nextLine();
                     while (scanner.hasNextLine()) {
                         lineStr = scanner.nextLine();
-                        Log.e("lst",lineStr);
                         SessionID sessionID = parseLineStr(lineStr);
                         if (sessionID == null){
                             continue;
@@ -115,6 +116,54 @@ public class PortService {
             }
         }
     }
+
+
+    protected void loadWithCmd(PortQuery query){
+        int[] types = query.getType();
+        for(int type:types) {
+            String filePath = PortQuery.getParseFilePath(type);
+            if (filePath == null) {
+                return;
+            }
+
+
+            InputStream is = null;
+            try {
+                String[] cmd = {"cat", filePath};
+                ProcessBuilder builder = new ProcessBuilder(cmd);
+                builder.directory(new File("/"));
+                builder.redirectErrorStream(true);
+                Process process = builder.start();
+                is = process.getInputStream();
+                Scanner scanner = new Scanner(is);
+                scanner.useDelimiter("\n");
+                String lineStr;
+                if (scanner.hasNextLine()) {
+                    //丢弃第一行
+                    scanner.nextLine();
+                    while (scanner.hasNextLine()) {
+                        lineStr = scanner.nextLine();
+                        SessionID sessionID = parseLineStr(lineStr);
+                        if (sessionID == null) {
+                            continue;
+                        }
+                        sessionID.type = PortQuery.getProtocolStr(type);
+                        portSessions.put(sessionID.localPort, sessionID);
+                    }
+                }
+
+                SessionID sessionID = portSessions.get(query.getPort());
+                if (sessionID != null) {
+                    query.onQueryResult(sessionID);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                IOUtils.safeClose(is);
+            }
+        }
+    }
+
 
     protected SessionID parseLineStr(String lineStr) {
         String itemStr[] = lineStr.split("\\s+");

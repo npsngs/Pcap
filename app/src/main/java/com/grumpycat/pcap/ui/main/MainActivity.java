@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.tools.SessionSet;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcap.tools.Config;
 import com.grumpycat.pcaplib.VpnController;
@@ -23,6 +24,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private ImageView btn_toggle;
     private AppInfoBar appInfoBar;
     private CaptureList captureList;
+    private SideMenu sideMenu;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,15 +37,29 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_toggle.setOnClickListener(this);
         appInfoBar = new AppInfoBar(this);
         captureList = new CaptureList(this);
+        sideMenu = new SideMenu(this);
         AppManager.asyncLoadAppInfo(this, () -> loadConfigs());
         VpnMonitor.setStatusListener(statusListener);
+        SessionSet.startObserve();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        captureList.onResume();
     }
 
 
     private void loadConfigs(){
         int[] uids = Config.getSelectApps();
-        VpnMonitor.setAllowUids(uids);
-        runOnUiThread(()->appInfoBar.setAppUid(uids));
+        runOnUiThread(()->{
+            appInfoBar.setAppUid(uids);
+            if(VpnMonitor.isSingleApp()){
+                captureList.showSingleApp(VpnMonitor.getSingleAppUid());
+            }else{
+                captureList.showMultiApp();
+            }
+        });
     }
 
     @Override
@@ -78,7 +94,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_PACKAGE && resultCode == RESULT_OK) {
-            appInfoBar.setAppUid(data.getIntArrayExtra("app_uid"));
+            int[] uids = data.getIntArrayExtra("app_uid");
+            Config.saveSelectApps(uids);
+            appInfoBar.setAppUid(uids);
+            if(VpnMonitor.isSingleApp()){
+                captureList.showSingleApp(VpnMonitor.getSingleAppUid());
+            }else{
+                captureList.showMultiApp();
+            }
         }
     }
 

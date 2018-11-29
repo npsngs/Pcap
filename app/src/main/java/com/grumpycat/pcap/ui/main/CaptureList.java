@@ -5,14 +5,16 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.grumpycat.pcap.PacketDetailActivity;
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.tools.AppSessionListener;
+import com.grumpycat.pcap.tools.AppSessions;
 import com.grumpycat.pcap.tools.SessionSet;
 import com.grumpycat.pcap.tools.SessionListener;
 import com.grumpycat.pcap.ui.base.BaseRecyclerAdapter;
@@ -20,21 +22,23 @@ import com.grumpycat.pcap.ui.base.BaseRecyclerViewHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 import com.grumpycat.pcap.ui.base.ListDividerDrawable;
 import com.grumpycat.pcap.ui.base.UiWidget;
-import com.grumpycat.pcap.ui.base.Util;
+import com.grumpycat.pcap.tools.Util;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.protocol.HttpHeader;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
-import com.grumpycat.pcaplib.session.SessionObserver;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.StrUtil;
 
 /**
  * Created by cc.he on 2018/11/27
  */
-public class CaptureList extends UiWidget implements SessionListener{
+public class CaptureList extends UiWidget{
     private RecyclerView rcv;
     private SessionManager sm;
-    private CaptureAdapter adapter;
+    private CaptureAdapter captureAdapter;
+    private AppSessionAdapter appSessionAdapter;
+    private RecyclerView.Adapter adapter;
     public CaptureList(Activity activity) {
         super(activity);
         rcv = findViewById(R.id.rcv);
@@ -46,36 +50,78 @@ public class CaptureList extends UiWidget implements SessionListener{
                 Util.dp2px(activity, 1f),
                 0xffeeeeee));
         rcv.addItemDecoration(did);
-        adapter = new CaptureAdapter();
-        rcv.setAdapter(adapter);
+        captureAdapter = new CaptureAdapter();
+        appSessionAdapter = new AppSessionAdapter();
 
         sm = SessionManager.getInstance();
         sm.init(activity.getApplication());
-        SessionSet.setSessionListener(this);
-        sm.setObserver((session, event) -> {
-            if(event != SessionObserver.EVENT_CLOSE){
-                activity.runOnUiThread(()-> SessionSet.insertOrUpdate(session));
-            }
-            Log.e("udi", ""+session.getUid());
-        });
+        SessionSet.setSessionListener(sessionListener);
+        SessionSet.setAppSessionListener(appSessionListener);
     }
 
-    @Override
-    public void onUpdate(NetSession session) {
-        int sn = session.getSerialNumber();
-        int size = adapter.getItemCount();
-        adapter.notifyItemChanged(size - sn -1);
+    public void onResume(){
+        SessionSet.setSessionListener(sessionListener);
+        SessionSet.setAppSessionListener(appSessionListener);
+        if(adapter != null){
+            adapter.notifyDataSetChanged();
+        }
     }
 
-    @Override
-    public void onNewAdd(NetSession session) {
-        adapter.add(session, 0);
+
+    public void showSingleApp(int uid){
+        SessionSet.setSingleApp(uid);
+        adapter = captureAdapter;
+        rcv.setAdapter(adapter);
+        captureAdapter.setData(SessionSet.getSessionByUid(uid));
+
     }
 
-    @Override
-    public void onClear() {
-        adapter.removeAll();
+    public void showMultiApp(){
+        SessionSet.setMultiApp();
+        adapter = appSessionAdapter;
+        rcv.setAdapter(adapter);
+        appSessionAdapter.setData(SessionSet.getAppSessions());
     }
+
+
+    private SessionListener sessionListener = new SessionListener() {
+        @Override
+        public void onUpdate(NetSession session) {
+            int sn = session.getSerialNumber();
+            int size = captureAdapter.getItemCount();
+            captureAdapter.notifyItemChanged(size - sn -1);
+        }
+
+        @Override
+        public void onNewAdd(NetSession session) {
+            captureAdapter.add(session, 0);
+        }
+
+        @Override
+        public void onClear() {
+            captureAdapter.removeAll();
+        }
+    };
+
+    private AppSessionListener appSessionListener = new AppSessionListener() {
+        @Override
+        public void onUpdate(AppSessions session) {
+            int sn = session.getSerialNumber();
+            int size = appSessionAdapter.getItemCount();
+            appSessionAdapter.notifyItemChanged(size - sn -1);
+        }
+
+        @Override
+        public void onNewAdd(AppSessions session) {
+            appSessionAdapter.add(session, 0);
+        }
+
+        @Override
+        public void onClear() {
+            appSessionAdapter.removeAll();
+        }
+    };
+
 
 
     private class CaptureAdapter extends BaseRecyclerAdapter<NetSession>{
@@ -91,6 +137,7 @@ public class CaptureList extends UiWidget implements SessionListener{
             return new SessionItemHolder(createItemView(viewGroup, i));
         }
     }
+
 
     private class SessionItemHolder extends BaseRecyclerViewHolder<NetSession>{
         private TextView tv_address;
@@ -140,7 +187,10 @@ public class CaptureList extends UiWidget implements SessionListener{
                     break;
             }
             tv_info.setText(String.format(Const.LOCALE,
-                    "s:%db   r:%db",session.sendByte, session.receiveByte));
+                    "s:%db   r:%db   UID:%d",
+                    session.sendByte,
+                    session.receiveByte,
+                    session.getUid()));
 
             itemView.setOnClickListener((view)->{
                 String dir = Const.DATA_DIR
@@ -151,5 +201,60 @@ public class CaptureList extends UiWidget implements SessionListener{
             });
         }
     }
+
+
+    private class AppSessionAdapter extends BaseRecyclerAdapter<AppSessions>{
+        @Override
+        public View createItemView(@NonNull ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            return inflater.inflate(R.layout.item_app_sessions, parent, false);
+        }
+
+        @NonNull
+        @Override
+        public BaseRecyclerViewHolder<AppSessions> onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            return new AppSessionHolder(createItemView(viewGroup, i));
+        }
+    }
+
+    private class AppSessionHolder extends BaseRecyclerViewHolder<AppSessions>{
+        private ImageView iv_icon;
+        private TextView tv_name;
+        private TextView tv_info;
+
+        public AppSessionHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        protected void initWithView(View itemView) {
+            iv_icon = findViewById(R.id.iv_icon);
+            tv_name = findViewById(R.id.tv_name);
+            tv_info = findViewById(R.id.tv_info);
+        }
+
+        @Override
+        protected void onBindData(BindDataGetter<AppSessions> dataGetter) {
+            int pos = getAdapterPosition();
+            AppSessions appSessions = dataGetter.getItemData(pos);
+            AppInfo appInfo = appSessions.getAppInfo();
+            if(appInfo != null){
+                iv_icon.setImageDrawable(appSessions.getAppInfo().icon);
+                tv_name.setText(appSessions.getAppInfo().name);
+            }else{
+                iv_icon.setImageResource(R.drawable.sym_def_app_icon);
+                tv_name.setText(R.string.unknow);
+            }
+
+            tv_info.setText(String.format(Const.LOCALE, "s:%d  r:%d  session:%d",
+                    appSessions.getSendBytes(),
+                    appSessions.getRecvBytes(),
+                    appSessions.getSessionCount()));
+            itemView.setOnClickListener((view)->
+                    SessionListActivity.gotoActi(getActivity(), appSessions.getUid()));
+        }
+    }
+
+
 
 }

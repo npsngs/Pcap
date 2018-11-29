@@ -29,8 +29,8 @@ public class AppInfoBar extends UiWidget{
         tv_info = findViewById(R.id.tv_info);
     }
 
+
     public void setAppUid(int[] uids){
-        Config.saveSelectApps(uids);
         if(uids == null || uids.length == 0){
             iv_icon.setBackgroundColor(0xff556677);
             tv_app_name.setText("All App");

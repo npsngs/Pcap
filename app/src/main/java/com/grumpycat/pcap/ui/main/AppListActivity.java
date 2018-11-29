@@ -22,7 +22,7 @@ import com.grumpycat.pcap.ui.base.BaseRecyclerAdapter;
 import com.grumpycat.pcap.ui.base.BaseRecyclerViewHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 import com.grumpycat.pcap.ui.base.ListDividerDrawable;
-import com.grumpycat.pcap.ui.base.Util;
+import com.grumpycat.pcap.tools.Util;
 
 import java.util.ArrayList;
 import java.util.List;
