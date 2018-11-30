@@ -217,16 +217,28 @@ public class VpnHelper {
                 if(VpnMonitor.isSingleApp()){
                     session.setUid(VpnMonitor.getSingleAppUid());
                 }else {
-                    portService.asyncQuery(new PortQuery(portKey & 0xFFFF,
-                            PortQuery.TYPE_TCP,PortQuery.TYPE_TCP6) {
-                        @Override
-                        public void onQueryResult(SessionID sessionID) {
-                            NetSession session = SessionManager.getInstance().getSession((short) sessionID.localPort);
-                            if (session != null) {
-                                session.setUid(sessionID.uid);
-                            }
+                    int uid = PortService.parseUidByPort(portKey & 0xFFFF, PortQuery.TYPE_TCP);
+                    if(uid > 0){
+                        session.setUid(uid);
+                    }else{
+                        uid = PortService.parseUidByPort(portKey & 0xFFFF, PortQuery.TYPE_TCP6);
+                        if(uid > 0) {
+                            session.setUid(uid);
                         }
-                    });
+
+
+
+                        /*portService.asyncQuery(new PortQuery(portKey & 0xFFFF,
+                                PortQuery.TYPE_TCP,PortQuery.TYPE_TCP6) {
+                            @Override
+                            public void onQueryResult(SessionID sessionID) {
+                                NetSession session = SessionManager.getInstance().getSession((short) sessionID.localPort);
+                                if (session != null) {
+                                    session.setUid(sessionID.uid);
+                                }
+                            }
+                        });*/
+                    }
                 }
             }else{
                 session.lastActiveTime = System.currentTimeMillis();

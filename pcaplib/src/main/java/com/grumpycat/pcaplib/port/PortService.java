@@ -22,6 +22,11 @@ import java.util.Scanner;
  * Created by cc.he on 2018/11/13
  */
 public class PortService {
+    static {
+        System.loadLibrary("NativePortService");
+    }
+    public native static int parseUidByPort(int port, int type);
+
     protected SparseArray<SessionID> portSessions;
     private Handler handler;
 
@@ -92,7 +97,6 @@ public class PortService {
 
 
                 if(scanner.hasNextLine()){
-                    //丢弃第一行
                     scanner.nextLine();
                     while (scanner.hasNextLine()) {
                         lineStr = scanner.nextLine();
@@ -139,7 +143,6 @@ public class PortService {
                 scanner.useDelimiter("\n");
                 String lineStr;
                 if (scanner.hasNextLine()) {
-                    //丢弃第一行
                     scanner.nextLine();
                     while (scanner.hasNextLine()) {
                         lineStr = scanner.nextLine();
