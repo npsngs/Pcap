@@ -14,7 +14,7 @@ public class VpnController {
     public static final int OP_STOP =   2;
 
     private static boolean udpNeedSave = false;
-
+    private static boolean isCrackTLS = true;
     public static Intent startVpn(Context context){
         Intent intent = VpnService.prepare(context);
         if (intent != null){
@@ -44,5 +44,13 @@ public class VpnController {
 
     public static void setIsUdpNeedSave(boolean udpNeedSave) {
         VpnController.udpNeedSave = udpNeedSave;
+    }
+
+    public static boolean isCrackTLS() {
+        return isCrackTLS;
+    }
+
+    public static void setIsCrackTLS(boolean isCrackTLS) {
+        VpnController.isCrackTLS = isCrackTLS;
     }
 }

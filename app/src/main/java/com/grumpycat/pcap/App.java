@@ -2,6 +2,7 @@ package com.grumpycat.pcap;
 
 import android.app.Application;
 
+import com.grumpycat.pcap.tools.AppConfigs;
 import com.grumpycat.pcap.tools.Config;
 
 /**
@@ -12,5 +13,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         Config.init(this);
+        AppConfigs.init(this);
     }
 }

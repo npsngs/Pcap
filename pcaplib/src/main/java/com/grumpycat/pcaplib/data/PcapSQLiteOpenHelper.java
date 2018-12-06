@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class PcapSQLiteOpenHelper extends SQLiteOpenHelper {
     public PcapSQLiteOpenHelper(Context context) {
-        super(context, "Pcap", null, 1);
+        super(context, "pcap.db", null, 1);
     }
 
     @Override

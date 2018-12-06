@@ -11,4 +11,5 @@ public class AppInfo {
     public String pkgName;
     public int uid;
     public boolean isSystem;
+    public boolean hasPermission;
 }

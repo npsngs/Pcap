@@ -45,7 +45,7 @@ public class SessionListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        captureList.onResume();
+        captureList.onStart();
     }
 
 }

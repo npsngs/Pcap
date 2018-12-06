@@ -7,8 +7,8 @@ import android.view.View;
  * Created by hechengcheng on 2018/7/20
  */
 
-public abstract class BaseRecyclerViewHolder<T> extends RecyclerView.ViewHolder{
-    public BaseRecyclerViewHolder(View itemView) {
+public abstract class BaseHolder<T> extends RecyclerView.ViewHolder{
+    public BaseHolder(View itemView) {
         super(itemView);
         initWithView(itemView);
     }

@@ -11,6 +11,7 @@ import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,13 +46,15 @@ public class AppManager {
         PackageManager pm = context.getPackageManager();
         List<PackageInfo> infoList = pm.getInstalledPackages(0);
         for (PackageInfo p:infoList) {
+            AppInfo app = new AppInfo();
             String pkgName = p.applicationInfo.packageName;
             if(PackageManager.PERMISSION_GRANTED !=
                     pm.checkPermission(Manifest.permission.INTERNET, pkgName)){
-                continue;
+                app.hasPermission = false;
+            }else {
+                app.hasPermission = true;
             }
 
-            AppInfo app =new AppInfo();
             app.icon = p.applicationInfo.loadIcon(pm);
             app.name = pm.getApplicationLabel(p.applicationInfo).toString();
             app.pkgName = pkgName;
@@ -66,17 +69,20 @@ public class AppManager {
         }
     }
 
-    public static List<AppInfo> getApps(){
+    public static List<AppInfo> getNetApps(){
         if(isFinishLoad){
             int len = apps.size();
             if(len > 0){
-                AppInfo[] app = new AppInfo[len];
+                List<AppInfo> app = new ArrayList<>();
 
                 for(int i=0;i<len;i++){
-                    app[i] = apps.valueAt(i);
+                    AppInfo item = apps.valueAt(i);
+                    if(item.hasPermission){
+                        app.add(item);
+                    }
                 }
 
-                Arrays.sort(app, (o1, o2) -> {
+                Collections.sort(app , (o1, o2) -> {
                     if (o1.isSystem && !o2.isSystem){
                         return 1;
                     }else if(!o1.isSystem && o2.isSystem){
@@ -85,7 +91,7 @@ public class AppManager {
                     return o1.name.compareTo(o2.name);
                 });
 
-                return Arrays.asList(app);
+                return app;
             }
         }
         return null;

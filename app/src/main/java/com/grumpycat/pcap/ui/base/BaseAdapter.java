@@ -1,7 +1,9 @@
 package com.grumpycat.pcap.ui.base;
 
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,7 +14,7 @@ import java.util.List;
 /**
  * Created by hechengcheng on 2018/7/20
  */
-public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRecyclerViewHolder<T>> implements BindDataGetter<T>{
+public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseHolder<T>> implements BindDataGetter<T>{
     private List<T> data = new ArrayList<>();
     public void setData(List<T> dataList){
         data.clear();
@@ -47,8 +49,9 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     }
 
 
+
     @Override
-    public void onBindViewHolder(@NonNull BaseRecyclerViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BaseHolder holder, int position) {
         holder.bindData(this);
     }
 
@@ -89,5 +92,9 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
         }
     }
 
-    public abstract View createItemView(@NonNull ViewGroup parent, int viewType);
+    protected abstract @LayoutRes int getItemLayoutRes();
+    protected View createItemView(@NonNull ViewGroup parent, int viewType){
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        return inflater.inflate(getItemLayoutRes(), parent, false);
+    }
 }

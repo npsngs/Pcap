@@ -189,6 +189,13 @@ public class VpnHelper {
 
                 CommonMethods.ComputeTCPChecksum(ipHeader, tcpHeader);
 
+
+                /*int offset = ipHeader.getHeaderLength()+tcpHeader.getHeaderLength();
+                if(ipHeader.mData[offset] == 0x16){
+                    Log.e("TLS", convertHexStr(ipHeader.mData, 0, ipHeader.getTotalLength()));
+                }*/
+
+
                 if(Const.LOG_ON){
                     Log.e("exchange", ipHeader.toString()
                             + "size:"+size
@@ -322,13 +329,26 @@ public class VpnHelper {
         return "[data:]\n" + convertByte2Hex(ipHeader.mData, offset, data) +"\n[dataStr:]\n"+new String(ipHeader.mData, offset, data);
     }
 
+
+
+    private String convertHexStr(byte[] data, int offset, int len){
+        String s = "";
+        int index = offset;
+        while (index < len){
+            s += HexStr.byte2Hex(data[index]);
+            index++;
+        }
+        return s;
+    }
+
+
+
     private String convertByte2Hex(byte[] data, int offset, int len){
         String s = "";
         int index = offset;
         int row = 0;
         while (index < len){
             s += HexStr.byte2Hex(data[index]);
-            s += " ";
             index++;
             row++;
             if (row > 15){
@@ -343,7 +363,7 @@ public class VpnHelper {
         IOUtils.safeClose(fis);
         IOUtils.safeClose(fos);
         IOUtils.safeClose(descriptor);
-
+        IOUtils.safeClose(SessionManager.getInstance());
         try {
             //停止TCP代理服务
             if (tcpProxy != null) {

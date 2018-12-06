@@ -7,6 +7,7 @@ import com.grumpycat.pcaplib.VpnController;
 import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.data.FileCache;
 import com.grumpycat.pcaplib.util.Const;
+import com.grumpycat.pcaplib.util.IOUtils;
 import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.Closeable;
@@ -14,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ public class SessionManager implements Closeable{
     private long maxSessionTimeout = Const.SESSION_MAX_TIMEOUT;
     private SessionDB sessionDB;
     private volatile SessionObserver observer;
+    private volatile boolean isClosed;
     private ConcurrentHashMap<Integer, NetSession> sessions = new ConcurrentHashMap<>();
     private ConcurrentLinkedQueue<NetSession> saveQueue = new ConcurrentLinkedQueue<>();
     public void init(Context context){
@@ -42,6 +43,7 @@ public class SessionManager implements Closeable{
 
     public void reset(){
         /*VPN 重启*/
+        isClosed = false;
     }
 
     public NetSession getSession(short portKey) {
@@ -56,6 +58,8 @@ public class SessionManager implements Closeable{
     }
 
     public void moveToSaveQueue(NetSession session){
+        if(isClosed)return;
+
         if(session == null || !session.hasData())return;
         NetSession ss = sessions.get(session.getPortKey());
         if(session.equals(ss)){
@@ -129,6 +133,13 @@ public class SessionManager implements Closeable{
         }
     }
 
+    public List<NetSession> loadHistory(){
+        return sessionDB.queryAll();
+    }
+
+
+
+
     public List<NetSession> loadAllSession() {
         String lastVpnStartTimeFormat = VpnMonitor.getVpnStartTimeStr();
         try {
@@ -152,13 +163,8 @@ public class SessionManager implements Closeable{
     }
 
 
-    /**
-     * 创建会话
-     * @param portKey    源端口
-     * @param remoteIP   远程ip
-     * @param remotePort 远程端口
-     * @return NatSession对象
-     */
+
+
     public NetSession createSession(short portKey, int remoteIP, short remotePort, int protocol) {
         if (sessions.size() > maxSessionCount) {
             clearExpiredSessions();
@@ -198,8 +204,14 @@ public class SessionManager implements Closeable{
         return false;
     }
 
+    public void clearHistory(){
+        sessionDB.deleteAll();
+        IOUtils.safeDelete(Const.BASE_DIR);
+    }
+
     @Override
     public void close() throws IOException {
+        isClosed = true;
         saveToDB();
     }
 }

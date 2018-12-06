@@ -86,7 +86,7 @@ public class UDPTunnel implements SelectHandler {
 
     private void processReceived() {
         Log.d(TAG, "processReceived:" + ipAndPort);
-        ByteBuffer receiveBuffer = ByteBuffer.allocate(Const.BUFFER_SIZE);;
+        ByteBuffer receiveBuffer = ByteBuffer.allocate(Const.BUFFER_SIZE);
         // Leave space for the header
         receiveBuffer.position(HEADER_SIZE);
         int readBytes = 0;

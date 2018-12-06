@@ -25,6 +25,7 @@ public class HttpHeader implements Serializable, JsonBean, Cloneable{
             json.put("path", path);
             json.put("url", url);
             json.put("isHttps", isHttps);
+            return json.toString();
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -143,12 +143,14 @@ public class VpnMonitor {
     }
     private static SSLContext sslContext;
     private static SSLContext createSslContext() throws Exception {
-        char[] passArray = "123456".toCharArray();
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+        String pwd = "123456";
+        String file = "server.bks";
+        char[] passArray = pwd.toCharArray();
+        SSLContext sslContext = SSLContext.getInstance("TLS");
         String type = KeyStore.getDefaultType();
         KeyStore ks = KeyStore.getInstance(type);
         //加载keytool 生成的文件
-        InputStream is = context.getResources().getAssets().open("demo.ks");
+        InputStream is = context.getResources().getAssets().open(file);
         ks.load(is, passArray);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(ks, passArray);

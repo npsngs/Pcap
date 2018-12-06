@@ -14,7 +14,7 @@ public class UiWidget {
     public UiWidget(Activity activity) {
         this.activity = activity;
     }
-
+    public void afterConfigLoaded(){}
     public <T extends View> T findViewById(int id) {
         return activity.findViewById(id);
     }

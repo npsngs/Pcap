@@ -42,6 +42,14 @@
             android:name=".ui.main.AppListActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".ui.main.HistoryActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.main.HistorySessionsActi"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".ui.main.SessionListActivity"
             android:screenOrientation="portrait"/>
 

@@ -4,7 +4,7 @@
     android:background="#c3c3c3"
     android:layout_gravity="start"
     android:orientation="vertical"
-    android:layout_width="160dp"
+    android:layout_width="240dp"
     android:layout_height="match_parent">
 
     <TextView
@@ -21,4 +21,33 @@
         style="@style/menu_text_item"
         android:text="@string/instrument"
         android:id="@+id/tv_instrument"/>
+
+    <TextView
+        style="@style/menu_text_item"
+        android:text="@string/clear"
+        android:id="@+id/tv_clear"/>
+
+    <Switch
+        android:padding="5dp"
+        android:textSize="14sp"
+        android:id="@+id/swt_floating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Floating" />
+
+    <Switch
+        android:padding="5dp"
+        android:textSize="14sp"
+        android:id="@+id/swt_filter_udp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filter UDP" />
+
+    <Switch
+        android:padding="5dp"
+        android:textSize="14sp"
+        android:id="@+id/swt_crack_tls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Crack TLS" />
 </LinearLayout>

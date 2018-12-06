@@ -13,29 +13,33 @@ import android.support.annotation.Nullable;
  * Created by cc.he on 2018/11/29
  */
 public class FloatingService extends Service {
-    private FloatList floatList;
+    private PageHome floatingPage;
+    private FloatingBtn floatingBtn;
     @Override
     public void onCreate() {
         super.onCreate();
         init();
-        show();
+        showBtn();
     }
 
     private void init(){
-        floatList = new FloatList(this);
+        floatingPage = new PageHome(this);
+        floatingBtn = new FloatingBtn(this);
+        floatingBtn.setFloatingPage(floatingPage);
+        floatingPage.setFloatingBtn(floatingBtn);
     }
 
-    private void show() {
+    private void showBtn(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && !Settings.canDrawOverlays(this)){
             return;
         }
-        floatList.show();
+        floatingBtn.show();
     }
 
-
     private void close(){
-        floatList.close();
+        floatingBtn.close();
+        floatingPage.close();
     }
 
     @Override
@@ -62,5 +66,10 @@ public class FloatingService extends Service {
             activity.startService(new Intent(activity, FloatingService.class));
         }
     }
+
+    public static void closeFloatingWindow(Activity activity){
+        activity.stopService(new Intent(activity, FloatingService.class));
+    }
+
 
 }

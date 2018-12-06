@@ -9,7 +9,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.grumpycat.pcap.R;
-import com.grumpycat.pcap.tools.SessionSet;
+import com.grumpycat.pcap.tools.AppConfigs;
+import com.grumpycat.pcap.model.SessionSet;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcap.tools.Config;
 import com.grumpycat.pcaplib.VpnController;
@@ -46,9 +47,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onResume() {
         super.onResume();
-        captureList.onResume();
+        captureList.onStart();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        captureList.onStop();
+    }
 
     private void loadConfigs(){
         int[] uids = Config.getSelectApps();
@@ -75,6 +81,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 if(VpnMonitor.isVpnRunning()){
                     VpnController.stopVpn(this);
                 }else {
+                    VpnController.setIsUdpNeedSave(!AppConfigs.isFilterUdp());
+                    VpnController.setIsCrackTLS(AppConfigs.isCrackTls());
+
                     Intent intent = VpnController.startVpn(this);
                     if (intent != null) {
                         startActivityForResult(intent, 1024);
@@ -110,6 +119,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             dl.closeDrawer(menu);
         }else{
             dl.openDrawer(menu);
+            sideMenu.onOpen();
         }
     }
 

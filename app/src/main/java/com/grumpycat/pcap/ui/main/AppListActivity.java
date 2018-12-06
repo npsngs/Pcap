@@ -3,12 +3,10 @@ package com.grumpycat.pcap.ui.main;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,8 +16,8 @@ import android.widget.TextView;
 import com.grumpycat.pcap.R;
 import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
-import com.grumpycat.pcap.ui.base.BaseRecyclerAdapter;
-import com.grumpycat.pcap.ui.base.BaseRecyclerViewHolder;
+import com.grumpycat.pcap.ui.base.BaseAdapter;
+import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 import com.grumpycat.pcap.ui.base.ListDividerDrawable;
 import com.grumpycat.pcap.tools.Util;
@@ -53,13 +51,13 @@ public class AppListActivity extends Activity{
         rcv.setAdapter(appListAdapter);
 
         if(AppManager.isFinishLoad()){
-            appListAdapter.setData(AppManager.getApps());
+            appListAdapter.setData(AppManager.getNetApps());
             selectRecords = new boolean[appListAdapter.getItemCount()];
         }else{
             progressBar.setVisibility(View.VISIBLE);
             AppManager.setFinishListener(() -> {
                 progressBar.setVisibility(View.GONE);
-                appListAdapter.setData(AppManager.getApps());
+                appListAdapter.setData(AppManager.getNetApps());
                 selectRecords = new boolean[appListAdapter.getItemCount()];
             });
         }
@@ -117,21 +115,20 @@ public class AppListActivity extends Activity{
         appListAdapter.notifyItemChanged(position);
     }
 
-    private class AppListAdapter extends BaseRecyclerAdapter<AppInfo> {
+    private class AppListAdapter extends BaseAdapter<AppInfo> {
 
         @Override
-        public View createItemView(@NonNull ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            return inflater.inflate(R.layout.item_app_list, parent, false);
+        protected int getItemLayoutRes() {
+            return R.layout.item_app_list;
         }
 
         @Override
-        public BaseRecyclerViewHolder<AppInfo> onCreateViewHolder(ViewGroup parent, int viewType) {
+        public BaseHolder<AppInfo> onCreateViewHolder(ViewGroup parent, int viewType) {
             return new AppItemHolder(createItemView(parent, viewType));
         }
     }
 
-    private class AppItemHolder extends BaseRecyclerViewHolder<AppInfo>{
+    private class AppItemHolder extends BaseHolder<AppInfo> {
         private ImageView appIcon;
         private TextView appName;
         private TextView appType;

@@ -1,4 +1,4 @@
-package com.grumpycat.pcap.tools;
+package com.grumpycat.pcap.model;
 
 import android.util.SparseArray;
 
@@ -27,13 +27,37 @@ public class AppSessions {
         recvPackets = 0;
     }
 
-    public void put(int key, NetSession value) {
-        sessions.put(key, value);
-        sendBytes += value.sendByte;
-        sendPackets += value.sendPacket;
-        recvBytes += value.receiveByte;
-        recvPackets += value.receivePacket;
+    public boolean contains(int key){
+       return null != sessions.get(key);
     }
+
+    public NetSession insertOrUpdate(int key, NetSession session){
+        NetSession localSession = sessions.get(key);
+        if(localSession != null){
+            sendBytes -= localSession.sendByte;
+            sendPackets -= localSession.sendPacket;
+            recvBytes -= localSession.receiveByte;
+            recvPackets -= localSession.receivePacket;
+
+            sendBytes += session.sendByte;
+            sendPackets += session.sendPacket;
+            recvBytes += session.receiveByte;
+            recvPackets += session.receivePacket;
+
+            localSession.set(session);
+        }else{
+            localSession = session.copy();
+            localSession.setSerialNumber(sessions.size());
+            sessions.put(key, localSession);
+
+            sendBytes += localSession.sendByte;
+            sendPackets += localSession.sendPacket;
+            recvBytes += localSession.receiveByte;
+            recvPackets += localSession.receivePacket;
+        }
+        return localSession;
+    }
+
 
     public NetSession valueAt(int index) {
         return sessions.valueAt(index);

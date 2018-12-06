@@ -1,4 +1,4 @@
-package com.grumpycat.pcap.tools;
+package com.grumpycat.pcap.model;
 
 import com.grumpycat.pcaplib.session.NetSession;
 

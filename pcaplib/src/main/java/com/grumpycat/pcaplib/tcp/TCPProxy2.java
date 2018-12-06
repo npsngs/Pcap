@@ -1,6 +1,7 @@
 package com.grumpycat.pcaplib.tcp;
 
 import com.grumpycat.pcaplib.NetProxy;
+import com.grumpycat.pcaplib.VpnController;
 import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
@@ -90,7 +91,11 @@ public class TCPProxy2 implements NetProxy {
     private class ChildInitHandler extends ChannelInitializer<SocketChannel> {
         @Override
         protected void initChannel(SocketChannel ch) throws Exception {
-            ch.pipeline().addLast("tcp", new TcpHandler());
+            if(VpnController.isCrackTLS()){
+                ch.pipeline().addLast("tcp", new TcpHandler());
+            }else{
+                ch.pipeline().addLast(new TcpDataHandler(false));
+            }
         }
     }
 
@@ -106,9 +111,9 @@ public class TCPProxy2 implements NetProxy {
                 if (b == 22) {
                     ctx.pipeline().addAfter("tcp", "ssl",
                             new SslHandler(VpnMonitor.createSslEngine(false)));
-                    ctx.pipeline().addLast(new DataHandler(true));
+                    ctx.pipeline().addLast(new TcpDataHandler(true));
                 }else{
-                    ctx.pipeline().addLast(new DataHandler(false));
+                    ctx.pipeline().addLast(new TcpDataHandler(false));
                 }
                 num++;
             }
@@ -136,11 +141,11 @@ public class TCPProxy2 implements NetProxy {
 
 
 
-    private class DataHandler extends ChannelInboundHandlerAdapter {
+    private class TcpDataHandler extends ChannelInboundHandlerAdapter {
         private boolean isSSL;
         private Channel remoteChannel;
         private TunnelInterceptor interceptor;
-        public DataHandler(boolean isSSL) {
+        public TcpDataHandler(boolean isSSL) {
             this.isSSL = isSSL;
         }
 

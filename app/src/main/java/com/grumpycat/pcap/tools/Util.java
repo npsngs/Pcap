@@ -1,6 +1,7 @@
 package com.grumpycat.pcap.tools;
 
 import android.content.Context;
+import android.os.Looper;
 
 /**
  * Created by cc.he on 2018/11/13
@@ -36,5 +37,17 @@ public class Util {
     public static int px2sp(Context context, float pxValue) {
         float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
         return (int) (pxValue / fontScale + 0.5f);
+    }
+
+    public static void assertRunInMainThread(){
+        if (Looper.getMainLooper() != Looper.myLooper()){
+            throw new IllegalThreadStateException("Can't Run In WorkThread");
+        }
+    }
+
+    public static void assertRunInWorkThread(){
+        if (Looper.getMainLooper() != Looper.myLooper()){
+            throw new IllegalThreadStateException("Can't Run In WorkThread");
+        }
     }
 }
