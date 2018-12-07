@@ -1,6 +1,7 @@
 package com.grumpycat.pcaplib.tcp;
 
 import com.grumpycat.pcaplib.VpnMonitor;
+import com.grumpycat.pcaplib.data.DataCacheHelper;
 import com.grumpycat.pcaplib.data.TcpDataSaveHelper;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
@@ -71,6 +72,7 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onClosed() {
+        DataCacheHelper.closeSession(session);
         SessionManager.getInstance().moveToSaveQueue(session);
        /*handler.postDelayed(new Runnable() {
             @Override

@@ -19,6 +19,7 @@ import com.grumpycat.pcap.ui.base.UiWidget;
 import com.grumpycat.pcap.tools.Util;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
+import com.grumpycat.pcaplib.util.StrUtil;
 
 /**
  * Created by cc.he on 2018/11/27
@@ -42,8 +43,11 @@ public class CaptureList extends UiWidget{
         rcv.addItemDecoration(did);
         captureAdapter = new SessionsAdapter(){
             @Override
-            protected void onJump(String dir) {
-                PacketDetailActivity.startActivity(getActivity(), dir);
+            protected void onJump(NetSession session) {
+                SessionDetailActi.goLaunch(getActivity(),
+                        StrUtil.formatYYMMDDHHMMSS(session.getVpnStartTime()),
+                        session.hashCode());
+                //PacketDetailActivity.startActivity(getActivity(), dir);
             }
         };
         appSessionAdapter = new AppSessionAdapter(){

@@ -53,6 +53,10 @@
         <activity android:name=".ui.main.SessionListActivity"
             android:screenOrientation="portrait"/>
 
+        <activity
+            android:name=".ui.main.SessionDetailActi"
+            android:screenOrientation="portrait" />
+
         <service android:name=".ui.floatwin.FloatingService"/>
     </application>
 

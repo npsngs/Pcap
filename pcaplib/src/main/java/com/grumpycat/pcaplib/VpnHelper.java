@@ -3,6 +3,7 @@ package com.grumpycat.pcaplib;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.grumpycat.pcaplib.data.DataCacheHelper;
 import com.grumpycat.pcaplib.http.HttpParser;
 import com.grumpycat.pcaplib.port.PortQuery;
 import com.grumpycat.pcaplib.port.PortService;
@@ -11,12 +12,12 @@ import com.grumpycat.pcaplib.protocol.IPHeader;
 import com.grumpycat.pcaplib.protocol.Packet;
 import com.grumpycat.pcaplib.protocol.TCPHeader;
 import com.grumpycat.pcaplib.session.NetSession;
-import com.grumpycat.pcaplib.session.SessionID;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.tcp.TCPProxy;
 import com.grumpycat.pcaplib.tcp.TCPProxy2;
 import com.grumpycat.pcaplib.udp.UDPServer;
 import com.grumpycat.pcaplib.util.CommonMethods;
+import com.grumpycat.pcaplib.util.CommonUtil;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.HexStr;
 import com.grumpycat.pcaplib.util.IOUtils;
@@ -87,6 +88,7 @@ public class VpnHelper {
             descriptor = service.establishVpn();
             fos = new FileOutputStream(descriptor.getFileDescriptor());
             fis = new FileInputStream(descriptor.getFileDescriptor());
+            DataCacheHelper.reset(VpnMonitor.getVpnStartTimeStr());
 
             startLoop();
         } catch (Exception e) {
@@ -153,15 +155,8 @@ public class VpnHelper {
             if(VpnMonitor.isSingleApp()){
                 session.setUid(VpnMonitor.getSingleAppUid());
             }else{
-                portService.asyncQuery(new PortQuery(portKey & 0xFFFF, PortQuery.TYPE_UDP) {
-                    @Override
-                    public void onQueryResult(SessionID sessionID) {
-                        NetSession session = SessionManager.getInstance().getSession(sessionID.localPort);
-                        if (session != null){
-                            session.setUid(sessionID.uid);
-                        }
-                    }
-                });
+                int uid = PortService.parseUidByPort(portKey & 0xFFFF, PortQuery.TYPE_UDP);
+                session.setUid(uid);
             }
         }else{
             session.lastActiveTime = System.currentTimeMillis();
@@ -208,6 +203,11 @@ public class VpnHelper {
 
 
                 fos.write(ipHeader.mData, ipHeader.mOffset, size);
+
+                DataCacheHelper.saveData(session,
+                        CommonUtil.copyByte(ipHeader.mData, ipHeader.mOffset, size),
+                        size);
+
                 VpnMonitor.addReceiveBytes(size);
             }
         } else {
@@ -225,27 +225,7 @@ public class VpnHelper {
                     session.setUid(VpnMonitor.getSingleAppUid());
                 }else {
                     int uid = PortService.parseUidByPort(portKey & 0xFFFF, PortQuery.TYPE_TCP);
-                    if(uid > 0){
-                        session.setUid(uid);
-                    }else{
-                        uid = PortService.parseUidByPort(portKey & 0xFFFF, PortQuery.TYPE_TCP6);
-                        if(uid > 0) {
-                            session.setUid(uid);
-                        }
-
-
-
-                        /*portService.asyncQuery(new PortQuery(portKey & 0xFFFF,
-                                PortQuery.TYPE_TCP,PortQuery.TYPE_TCP6) {
-                            @Override
-                            public void onQueryResult(SessionID sessionID) {
-                                NetSession session = SessionManager.getInstance().getSession((short) sessionID.localPort);
-                                if (session != null) {
-                                    session.setUid(sessionID.uid);
-                                }
-                            }
-                        });*/
-                    }
+                    session.setUid(uid);
                 }
             }else{
                 session.lastActiveTime = System.currentTimeMillis();
@@ -254,7 +234,7 @@ public class VpnHelper {
             int tcpDataSize = ipHeader.getDataLength() - tcpHeader.getHeaderLength();
             //丢弃tcp握手的第二个ACK报文。因为客户端发数据的时候也会带上ACK，这样可以在服务器Accept之前分析出HOST信息。
 
-            if (session.sendPacket == 2 && tcpDataSize == 0) {
+            /*if (session.sendPacket == 2 && tcpDataSize == 0) {
                 if(Const.LOG_ON) {
                     Log.e("send2Proxy", ipHeader.toString()
                             + "size:" + size
@@ -273,7 +253,7 @@ public class VpnHelper {
                         + "TCP:["+tcpHeader.toString()+"]"
                         + printData(ipHeader, tcpHeader));
             }
-
+*/
 
 
             //分析数据，找到host
@@ -303,6 +283,9 @@ public class VpnHelper {
                 session.setProtocol(Const.HTTP);
             }
 
+            DataCacheHelper.saveData(session,
+                    CommonUtil.copyByte(ipHeader.mData, ipHeader.mOffset, size),
+                    size);
             //转发给本地TCP服务器
             ipHeader.setSourceIP(ipHeader.getDestinationIP());
             ipHeader.setDestinationIP(VpnMonitor.getLocalIp());
@@ -312,6 +295,8 @@ public class VpnHelper {
 
 
             fos.write(ipHeader.mData, ipHeader.mOffset, size);
+
+
             //注意顺序
             SessionManager.getInstance().addSessionSendBytes(session, tcpDataSize);
             VpnMonitor.addSendBytes(size);
@@ -364,6 +349,7 @@ public class VpnHelper {
         IOUtils.safeClose(fos);
         IOUtils.safeClose(descriptor);
         IOUtils.safeClose(SessionManager.getInstance());
+        DataCacheHelper.close();
         try {
             //停止TCP代理服务
             if (tcpProxy != null) {

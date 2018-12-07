@@ -40,6 +40,7 @@
     <string name="select_all">Select All</string>
     <string name="ok">OK</string>
     <string name="clear">Clear</string>
+    <string name="data">Data</string>
     <string name="net_session">Net Sessions</string>
 
 </resources>

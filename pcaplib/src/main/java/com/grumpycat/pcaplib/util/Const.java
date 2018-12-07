@@ -24,7 +24,8 @@ public interface Const {
 
     int BUFFER_SIZE = 2560;
     int MAX_PAYLOAD_SIZE = 2520;
-    String BASE_DIR = Environment.getExternalStorageDirectory() + "/Pcap/Conversation/";
+    String BASE_DIR = Environment.getExternalStorageDirectory() + "/Pcap/";
+    String CACHE_DIR = BASE_DIR+ "cache/";
     String DATA_DIR = BASE_DIR + "data/";
     String CONFIG_DIR=BASE_DIR+"config/";
     String VPN_SP_NAME="vpn_sp_name";
@@ -34,7 +35,7 @@ public interface Const {
     String DEFAULT_PACKAGE_NAME = "default_package_name";
     boolean IS_NEED_GZIP = false;
 
-
+    int VPN_IP = CommonMethods.ipStringToInt("10.8.0.2");
 
     /***************
      *  const

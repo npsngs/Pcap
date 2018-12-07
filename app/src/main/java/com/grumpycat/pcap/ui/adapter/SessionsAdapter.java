@@ -86,15 +86,15 @@ public class SessionsAdapter extends BaseAdapter<NetSession> {
                     session.hashCode()));
 
             itemView.setOnClickListener((view)->{
-                String dir = Const.DATA_DIR
+                /*String dir = Const.DATA_DIR
                         + StrUtil.formatYYMMDDHHMMSS(session.getVpnStartTime())
                         + "/"
-                        + session.hashCode();
-                onJump(dir);
+                        + session.hashCode();*/
+                onJump(session);
             });
         }
     }
 
-    protected void onJump(String dir){}
+    protected void onJump(NetSession session){}
 }
 

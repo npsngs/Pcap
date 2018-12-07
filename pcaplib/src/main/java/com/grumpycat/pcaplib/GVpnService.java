@@ -56,7 +56,7 @@ public class GVpnService extends VpnService {
         Builder builder = new Builder();
         builder.setMtu(Const.MUTE_SIZE);
 
-        VpnMonitor.setLocalIp(CommonMethods.ipStringToInt("10.8.0.2"));
+        VpnMonitor.setLocalIp(Const.VPN_IP);
         VpnMonitor.setVpnStartTime(System.currentTimeMillis());
         DataManager.getInstance().setCurDir(VpnMonitor.getVpnStartTimeStr());
         builder.addAddress("10.8.0.2", 32);
