@@ -5,19 +5,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.grumpycat.pcap.PacketDetailActivity;
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.base.BaseActi;
 import com.grumpycat.pcap.model.SessionSet;
-import com.grumpycat.pcap.ui.adapter.HistorySessionsAdapter;
+import com.grumpycat.pcap.tools.Util;
+import com.grumpycat.pcap.ui.adapter.SessionsAdapter;
 import com.grumpycat.pcap.ui.base.SingleList;
-import com.grumpycat.pcap.ui.base.TitleBar;
+import com.grumpycat.pcap.ui.detail.SessionDetailActi;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
+import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.StrUtil;
 
 
 /**
  * Created by cc.he on 2018/12/6
  */
-public class HistorySessionsActi extends Activity {
+public class HistorySessionsActi extends BaseActi {
     public static void goLaunch(Activity from, long vpnStartTime){
         Intent intent = new Intent(from, HistorySessionsActi.class);
         intent.putExtra("vpnStartTime", vpnStartTime);
@@ -25,19 +29,30 @@ public class HistorySessionsActi extends Activity {
     }
 
     private SingleList singleList;
-    private HistorySessionsAdapter adapter;
+    private SessionsAdapter adapter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.acti_historys);
+        setContentView(R.layout.acti_session_list);
         long vpnStartTime = getIntent().getLongExtra("vpnStartTime", 0);
-        TitleBar titleBar = new TitleBar(this);
-        titleBar.setTitleStr(StrUtil.formatYYMMDDHHMMSS(vpnStartTime));
+        getToolbar().setTitle(StrUtil.formatYYMMDD_HHMMSS(vpnStartTime));
         singleList = new SingleList(this);
-        adapter = new HistorySessionsAdapter(){
+        singleList.showDivider(
+                Util.dp2px(this, 0.5f),
+                Util.dp2px(this, 8f),
+                0xff787878);
+        adapter = new SessionsAdapter(){
             @Override
-            protected void onJump(String dir) {
-                PacketDetailActivity.startActivity(HistorySessionsActi.this, dir);
+            protected void onJump(NetSession session) {
+                AppInfo appInfo = AppManager.getApp(session.getUid());
+                String appName = appInfo != null
+                        ?appInfo.name
+                        :HistorySessionsActi.this.getString(R.string.unknow);
+                SessionDetailActi.goLaunch(HistorySessionsActi.this,
+                        appName,
+                        session.getProtocol(),
+                        StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()),
+                        session.hashCode());
             }
         };
         singleList.setAdapter(adapter);

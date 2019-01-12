@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 
-import static com.grumpycat.pcaplib.util.ThreadPool.execute;
-
 /**
  * @author minhui.zhu
  *         Created by minhui.zhu on 2018/5/7.
@@ -50,6 +48,7 @@ public class TcpDataSaveHelper {
             long length = randomAccessFile.length();
             randomAccessFile.seek(length);
             randomAccessFile.write(data.needParseData, data.offSet, data.playoffSize);
+            randomAccessFile.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,7 +76,10 @@ public class TcpDataSaveHelper {
         }
         File file = new File(dir);
         if (!file.exists()) {
-            file.mkdirs();
+           boolean ret = file.mkdirs();
+           if(!ret){
+              return;
+           }
         }
         String childName = (data.isRequest ? REQUEST : RESPONSE) + saveNum;
         lastSaveFile = new File(file, childName);

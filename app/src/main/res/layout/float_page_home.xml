@@ -1,53 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#55000000"
-    android:padding="4dp">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/title_bar"
+        android:background="@drawable/sp_floating_titlebar_bg"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="24dp">
+        android:layout_height="36dp">
         <ImageView
+            android:layout_marginRight="5dp"
+            android:padding="8dp"
             android:id="@+id/iv_left"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/back_btn_selector"
-            android:layout_width="24dp"
-            android:layout_height="24dp" />
+            android:src="@drawable/sl_ic_back"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
 
         <TextView
             android:gravity="center"
-            android:textColor="@color/black_21"
+            android:textColor="@color/white_text"
             android:textSize="12sp"
             android:id="@+id/tv_title"
-            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/iv_left"
-            android:layout_toLeftOf="@+id/iv_right"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             />
 
         <ImageView
-            android:id="@+id/iv_right"
+            android:visibility="gone"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/iv_right1"
+            android:padding="8dp"
+            android:id="@+id/iv_right2"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
+
+        <ImageView
+            android:visibility="gone"
+            android:padding="8dp"
+            android:id="@+id/iv_right1"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_close"
-            android:layout_width="24dp"
-            android:layout_height="24dp" />
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
+
+        <ImageView
+            android:layout_marginTop="2dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_drag_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/rl_container"
+        android:background="@drawable/sp_mainlist_bg"
         android:layout_below="@id/title_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <ImageView
-        android:src="@drawable/ic_drag"
+        android:src="@drawable/ic_expand_ds"
+        android:paddingTop="22dp"
+        android:paddingLeft="22dp"
+        android:paddingRight="3dp"
+        android:paddingBottom="3dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:id="@+id/iv_drag"
-        android:layout_width="30dp"
-        android:layout_height="30dp"/>
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
 </RelativeLayout>

@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorPrimaryDark_light">#20303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="colorAccent_light">#20884081</color>
+    <color name="colorPrimary">#232C3F</color>
+    <color name="colorPrimaryDark">#273248</color>
+    <color name="colorPrimaryDark_light">#828793</color>
+    <color name="colorSecond">#FFAC08</color>
+    <color name="colorSecondDark">#D2871D</color>
+    <color name="colorSecondDark_light">#FFD613</color>
+    <color name="side_menu_bg">#151A24</color>
+
+
+    <color name="colorAccent">#FFAC08</color>
+    <color name="colorAccent_light">#FFD613</color>
     <color name="black_DBDBDB">#DBDBDB</color>
     <color name="white_FFFFFFFF">#FFFFFFFF</color>
     <color name="bg_F8F8F9">#F8F8F9</color>
@@ -15,4 +21,13 @@
     <color name="white">#ffffff</color>
     <color name="black_21">#212121</color>
 
+    <color name="white_text">#FBFCFE</color>
+    <color name="dark_gray_text">#5f5f5f</color>
+    <color name="gray_c3_text">#C3C3C3</color>
+    <color name="acti_bg">#14181D</color>
+
+    <color name="ssl_tag">#EC4128</color>
+    <color name="http_tag">#23A500</color>
+    <color name="tcp_tag">#D2871D</color>
+    <color name="udp_tag">#D9574D</color>
 </resources>

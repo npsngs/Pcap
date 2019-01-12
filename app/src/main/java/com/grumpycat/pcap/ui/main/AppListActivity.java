@@ -1,26 +1,24 @@
 package com.grumpycat.pcap.ui.main;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.base.BaseActi;
+import com.grumpycat.pcap.tools.Util;
+import com.grumpycat.pcap.ui.base.SingleList;
 import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
-import com.grumpycat.pcap.ui.base.ListDividerDrawable;
-import com.grumpycat.pcap.tools.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,51 +27,34 @@ import java.util.List;
 /**
  * Created by cc.he on 2018/11/13
  */
-public class AppListActivity extends Activity{
+public class AppListActivity extends BaseActi implements Toolbar.OnMenuItemClickListener {
     private AppListAdapter appListAdapter;
-    private ProgressBar progressBar;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acti_app_list);
-        progressBar = findViewById(R.id.pb);
-        RecyclerView rcv = findViewById(R.id.rcv);
-        rcv.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
-        DividerItemDecoration did = new DividerItemDecoration(this,
-                DividerItemDecoration.VERTICAL);
-        did.setDrawable(new ListDividerDrawable(
-                Util.dp2px(this, 1f),
-                0xffeeeeee));
-        rcv.addItemDecoration(did);
 
+        getToolbar().setTitle(R.string.select_apps);
+        getToolbar().inflateMenu(R.menu.title_app_list);
+        getToolbar().setOnMenuItemClickListener(this);
+        SingleList singleList = new SingleList(this);
+        singleList.showDivider(
+                Util.dp2px(this, 0.5f),
+                Util.dp2px(this, 12f),
+                0xff787878);
         appListAdapter = new AppListAdapter();
-        rcv.setAdapter(appListAdapter);
-
+        singleList.setAdapter(appListAdapter);
         if(AppManager.isFinishLoad()){
             appListAdapter.setData(AppManager.getNetApps());
             selectRecords = new boolean[appListAdapter.getItemCount()];
         }else{
-            progressBar.setVisibility(View.VISIBLE);
+            showProgressBar();
             AppManager.setFinishListener(() -> {
-                progressBar.setVisibility(View.GONE);
+                hideProgressBar();
                 appListAdapter.setData(AppManager.getNetApps());
                 selectRecords = new boolean[appListAdapter.getItemCount()];
             });
         }
-
-        findViewById(R.id.tv_ok).setOnClickListener(v -> {
-            returnSelectApps();
-        });
-
-        findViewById(R.id.tv_all).setOnClickListener(v -> {
-            selectAll();
-        });
-
-        findViewById(R.id.back).setOnClickListener(v -> {
-            setResult(RESULT_CANCELED);
-            finish();
-        });
     }
 
 
@@ -115,10 +96,23 @@ public class AppListActivity extends Activity{
         appListAdapter.notifyItemChanged(position);
     }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()){
+            case R.id.it_select_all:
+                selectAll();
+                return true;
+            case R.id.it_select:
+                returnSelectApps();
+                return true;
+        }
+        return false;
+    }
+
     private class AppListAdapter extends BaseAdapter<AppInfo> {
 
         @Override
-        protected int getItemLayoutRes() {
+        protected int getItemLayoutRes(int viewType) {
             return R.layout.item_app_list;
         }
 
@@ -131,8 +125,8 @@ public class AppListActivity extends Activity{
     private class AppItemHolder extends BaseHolder<AppInfo> {
         private ImageView appIcon;
         private TextView appName;
-        private TextView appType;
-        private TextView appUid;
+        private TextView tv_info;
+        private ImageView iv_select;
 
         public AppItemHolder(View itemView) {
             super(itemView);
@@ -143,8 +137,8 @@ public class AppListActivity extends Activity{
             itemView.setOnClickListener(v -> selectPosition(getAdapterPosition()));
             appIcon = itemView.findViewById(R.id.iv_icon);
             appName = itemView.findViewById(R.id.tv_name);
-            appUid = itemView.findViewById(R.id.tv_uid);
-            appType = itemView.findViewById(R.id.tv_type);
+            tv_info = itemView.findViewById(R.id.tv_info);
+            iv_select = itemView.findViewById(R.id.iv_select);
         }
 
         @Override
@@ -153,12 +147,15 @@ public class AppListActivity extends Activity{
             AppInfo appInfo = dataGetter.getItemData(pos);
             appIcon.setImageDrawable(appInfo.icon);
             appName.setText(appInfo.name);
-            appUid.setText("uid:"+appInfo.uid);
-            appType.setText(appInfo.isSystem?"System":"Normal");
+            tv_info.setText(String.format("[UID:%d] %s",appInfo.uid, appInfo.pkgName));
+
+            iv_select.setVisibility(selectRecords[pos]?View.VISIBLE:View.GONE);
             if(selectRecords[pos]){
-                itemView.setBackgroundColor(0xffc3c3c3);
+                iv_select.setVisibility(View.VISIBLE);
+                itemView.setBackgroundColor(0x22000000);
             }else{
-                itemView.setBackgroundColor(0xffffffff);
+                iv_select.setVisibility(View.GONE);
+                itemView.setBackgroundColor(0x00000000);
             }
         }
     }

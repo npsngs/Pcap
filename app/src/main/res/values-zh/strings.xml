@@ -31,4 +31,23 @@
     <string name="no_data">数据不存在!!</string>
     <string name="show_udp">显示UDP数据</string>
     <string name="save_udp">保存UDP数据</string>
+    <string name="app_name">抓包助手</string>
+    <string name="instrument">instr</string>
+    <string name="select_apps">选择应用</string>
+    <string name="select_all">选择所有应用</string>
+    <string name="ok">确定</string>
+    <string name="packetData">数据</string>
+    <string name="net_session">网络会话</string>
+    <string name="sort">排序</string>
+    <string name="filter">过滤</string>
+    <string name="clear">清除</string>
+    <string name="all_app">所有应用</string>
+    <string name="select">选择</string>
+    <string name="cache_path">缓存路径</string>
+    <string name="filter_udp">显示UDP包</string>
+    <string name="crack_ssl">破解Https</string>
+    <string name="float_window">打开悬浮窗</string>
+    <string name="clear_finish">清理完成</string>
+    <string name="vpn_toggle">VPN开关</string>
+    <string name="floating_toggle">悬浮开关</string>
 </resources>

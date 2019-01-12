@@ -12,9 +12,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.model.SessionListener;
+import com.grumpycat.pcap.model.SessionSet;
 import com.grumpycat.pcap.tools.ActionDetector;
 import com.grumpycat.pcap.tools.AppConfigs;
 import com.grumpycat.pcap.tools.Util;
+import com.grumpycat.pcaplib.session.NetSession;
 
 /**
  * Created by cc.he on 2018/12/3
@@ -40,7 +43,10 @@ public class FloatingBtn {
         if(btn == null){
             screenW = service.getResources().getDisplayMetrics().widthPixels;
             btn = new ImageView(service);
-            btn.setImageResource(R.drawable.ic_float_btn_sl);
+            int padding = Util.dp2px(service, 8f);
+            btn.setPadding(padding, padding, padding, padding);
+            btn.setBackgroundResource(R.drawable.sp_floating_btn_bg);
+            btn.setImageResource(R.drawable.sp_floating_btn);
             // 获取WindowManager服务
             wm = (WindowManager) service.getSystemService(Context.WINDOW_SERVICE);
             // 设置LayoutParam
@@ -80,6 +86,7 @@ public class FloatingBtn {
 
                 @Override
                 protected void onClick(){
+                    onHide();
                     btn.setVisibility(View.GONE);
                     floatingPage.show();
                 }
@@ -91,9 +98,48 @@ public class FloatingBtn {
             });
         }else{
             btn.setVisibility(View.VISIBLE);
+            onShow();
         }
     }
 
+    private void onShow(){
+        SessionSet.addSessionListener(listener);
+    }
+
+    private void onHide(){
+        SessionSet.removeSessionListener(listener);
+    }
+
+    private SessionListener listener = new SessionListener() {
+        @Override
+        public void onUpdate(NetSession session) {
+            showRed();
+        }
+
+        @Override
+        public void onNewAdd(NetSession session) {
+            showRed();
+        }
+
+        @Override
+        public void onClear() {
+        }
+    };
+
+    private boolean isShowRed = false;
+    private void showRed(){
+        if(btn != null && !isShowRed){
+            btn.setImageResource(R.drawable.sp_floating_btn_hl);
+            btn.postDelayed(timer,2000);
+        }
+    }
+
+    private Runnable timer = () -> {
+        if(btn != null){
+            isShowRed = false;
+            btn.setImageResource(R.drawable.sp_floating_btn);
+        }
+    };
 
     private void animateBackSide(){
         int targetX;
@@ -120,6 +166,7 @@ public class FloatingBtn {
 
     public void close(){
         if(btn != null){
+            onHide();
             service = null;
             wm.removeView(btn);
         }

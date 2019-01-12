@@ -1,6 +1,5 @@
 package com.grumpycat.pcap.ui.main;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,13 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.base.BaseActi;
 import com.grumpycat.pcap.model.HistoryInfo;
 import com.grumpycat.pcap.model.SessionSet;
+import com.grumpycat.pcap.tools.Util;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 import com.grumpycat.pcap.ui.base.SingleList;
-import com.grumpycat.pcap.ui.base.TitleBar;
 import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
@@ -28,16 +28,19 @@ import java.util.List;
 /**
  * Created by cc.he on 2018/12/6
  */
-public class HistoryActivity extends Activity {
+public class HistoryActivity extends BaseActi {
     private SingleList singleList;
     private HistoryAdapter adapter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.acti_historys);
-        TitleBar titleBar = new TitleBar(this);
-        titleBar.setTitleStr(R.string.history);
+        setContentView(R.layout.acti_session_list);
+        getToolbar().setTitle(R.string.history);
         singleList = new SingleList(this);
+        singleList.showDivider(
+                Util.dp2px(this, 0.5f),
+                Util.dp2px(this, 8f),
+                0xff787878);
         adapter = new HistoryAdapter();
         singleList.setAdapter(adapter);
 
@@ -79,7 +82,7 @@ public class HistoryActivity extends Activity {
     private class HistoryAdapter extends BaseAdapter<HistoryInfo> {
 
         @Override
-        protected int getItemLayoutRes() {
+        protected int getItemLayoutRes(int viewType) {
             return R.layout.item_history;
         }
         @NonNull
@@ -105,7 +108,7 @@ public class HistoryActivity extends Activity {
         protected void onBindData(BindDataGetter<HistoryInfo> dataGetter) {
             int pos = getAdapterPosition();
             HistoryInfo bean = dataGetter.getItemData(pos);
-            tv_time.setText(StrUtil.formatYYMMDDHHMMSS(bean.getTimeStamp()));
+            tv_time.setText(StrUtil.formatYYMMDD_HHMMSS(bean.getTimeStamp()));
             tv_count.setText(String.format("%d", bean.getSessionCount()));
             itemView.setOnClickListener((view)-> HistorySessionsActi.goLaunch(
                     HistoryActivity.this,

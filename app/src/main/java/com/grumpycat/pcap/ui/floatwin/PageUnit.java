@@ -31,13 +31,29 @@ public abstract class PageUnit {
     public void onLeftClick(){
         exit();
     }
-    public void onRightClick(){}
+    public void onRightClick(int num){}
     public void onExit(){
         home = null;
     }
 
     public void exit(){
         home.exitPage(this);
+    }
+
+    public void setLeftBtn(int resId) {
+        home.setLeftBtn(resId);
+    }
+
+    public void setRightBtn(int resId, int num) {
+        home.setRightBtn(resId, num);
+    }
+
+    public void setTitleStr(int resId) {
+        home.setTitleStr(resId);
+    }
+
+    public void setTitleStr(String str) {
+        home.setTitleStr(str);
     }
 
     public void goNextPage(PageUnit nextPage){

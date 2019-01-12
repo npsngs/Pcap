@@ -11,10 +11,10 @@
     <application
         android:name=".App"
         android:allowBackup="true"
-        android:icon="@drawable/app_icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        android:theme="@style/AppTheme">
         <activity android:name=".VPNCaptureActivity" >
         </activity>
 
@@ -54,7 +54,7 @@
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".ui.main.SessionDetailActi"
+            android:name=".ui.detail.SessionDetailActi"
             android:screenOrientation="portrait" />
 
         <service android:name=".ui.floatwin.FloatingService"/>

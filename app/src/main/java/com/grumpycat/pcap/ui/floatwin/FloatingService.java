@@ -19,7 +19,7 @@ public class FloatingService extends Service {
     public void onCreate() {
         super.onCreate();
         init();
-        showBtn();
+        show();
     }
 
     private void init(){
@@ -29,12 +29,12 @@ public class FloatingService extends Service {
         floatingPage.setFloatingBtn(floatingBtn);
     }
 
-    private void showBtn(){
+    private void show(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && !Settings.canDrawOverlays(this)){
             return;
         }
-        floatingBtn.show();
+        floatingPage.show();
     }
 
     private void close(){

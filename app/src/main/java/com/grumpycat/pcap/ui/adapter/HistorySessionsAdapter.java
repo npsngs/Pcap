@@ -1,6 +1,7 @@
 package com.grumpycat.pcap.ui.adapter;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,7 +24,7 @@ import com.grumpycat.pcaplib.util.StrUtil;
 public class HistorySessionsAdapter extends BaseAdapter<NetSession> {
 
     @Override
-    protected int getItemLayoutRes() {
+    protected int getItemLayoutRes(int viewType) {
         return R.layout.item_history_session;
     }
 
@@ -62,9 +63,9 @@ public class HistorySessionsAdapter extends BaseAdapter<NetSession> {
                     tv_flag.setText(protocol==Const.HTTP?"HTTP":"HTTPS");
                     HttpHeader httpHeader = session.getHttpHeader();
                     if(httpHeader != null){
-                        if (httpHeader.url != null) {
+                        if (!TextUtils.isEmpty(httpHeader.url)) {
                             tv_address.setText(httpHeader.url);
-                        } else if(httpHeader.host != null){
+                        } else if(!TextUtils.isEmpty(httpHeader.host)){
                             tv_address.setText(httpHeader.host);
                         }else{
                             tv_address.setText(String.format(Const.LOCALE,
@@ -72,9 +73,14 @@ public class HistorySessionsAdapter extends BaseAdapter<NetSession> {
                                     StrUtil.ip2Str(session.getRemoteIp()),
                                     session.getRemotePort()));
                         }
+                    }else{
+                        tv_address.setText(String.format(Const.LOCALE,
+                                "%s:%d",
+                                StrUtil.ip2Str(session.getRemoteIp()),
+                                session.getRemotePort()));
                     }
                 }break;
-                case Const.TCP:
+                default:
                     tv_flag.setText("TCP");
                     tv_address.setText(String.format(Const.LOCALE,
                             "%s:%d",
@@ -96,8 +102,8 @@ public class HistorySessionsAdapter extends BaseAdapter<NetSession> {
             }
 
             itemView.setOnClickListener((view)->{
-                String dir = Const.DATA_DIR
-                        + StrUtil.formatYYMMDDHHMMSS(session.getVpnStartTime())
+                String dir = Const.CACHE_DIR
+                        + StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime())
                         + "/"
                         + session.hashCode();
                 onJump(dir);

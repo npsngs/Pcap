@@ -1,11 +1,10 @@
 package com.grumpycat.pcaplib.tcp;
 
-import com.grumpycat.pcaplib.VpnMonitor;
 import com.grumpycat.pcaplib.data.DataCacheHelper;
-import com.grumpycat.pcaplib.data.TcpDataSaveHelper;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
-import com.grumpycat.pcaplib.util.Const;
+import com.grumpycat.pcaplib.util.CommonUtil;
+import com.grumpycat.pcaplib.util.IOUtils;
 
 import java.nio.ByteBuffer;
 
@@ -13,30 +12,30 @@ import java.nio.ByteBuffer;
  * Created by cc.he on 2018/11/12
  */
 public class SessionInterceptor implements TunnelInterceptor {
-    private TcpDataSaveHelper helper;
+    private DataCacheHelper helper;
     private NetSession session;
-    /*private final Handler handler;*/
     public SessionInterceptor(short sessionKey) {
         session = SessionManager.getInstance().getSession(sessionKey);
-        String helperDir = new StringBuilder()
-                .append(Const.DATA_DIR)
-                .append(VpnMonitor.getVpnStartTimeStr())
-                .append("/")
-                .append(session.hashCode())
-                .toString();
-
-        helper = new TcpDataSaveHelper(helperDir);
-        /*handler = new Handler(Looper.getMainLooper());*/
+        if(session != null){
+            helper = new DataCacheHelper(session.hashCode());
+        }
     }
 
     @Override
     public void onReceived(ByteBuffer data) {
-        if(data == null){
+        if(data == null || helper == null){
             return;
         }
-        SessionManager.getInstance().addSessionReadBytes(session, data.limit());
+
+        int size = data.limit();
+        helper.saveData(CommonUtil.copyByte(data.array(), 0, size),
+                size,
+                false);
+        SessionManager.getInstance().addSessionReadBytes(session, size);
+
+        //SessionManager.getInstance().addSessionReadBytes(session, data.limit());
         /*refreshSessionAfterRead(data.limit());*/
-        TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
+        /*TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
                 .SaveData
                 .Builder()
                 .isRequest(false)
@@ -44,7 +43,7 @@ public class SessionInterceptor implements TunnelInterceptor {
                 .length(data.limit())
                 .offSet(0)
                 .build();
-        helper.addData(saveData);
+        helper.addData(saveData);*/
 
         /*DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
         dataMeta.setOut(false);
@@ -53,10 +52,18 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onSend(ByteBuffer data) {
-        if(data == null){
+        if(data == null || helper == null){
             return;
         }
-        TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
+
+        int size = data.limit();
+        helper.saveData(CommonUtil.copyByte(data.array(), 0, size),
+                size,
+                true);
+        SessionManager.getInstance().addSessionSendBytes(session, size);
+
+
+        /*TcpDataSaveHelper.SaveData saveData = new TcpDataSaveHelper
                 .SaveData
                 .Builder()
                 .isRequest(true)
@@ -64,7 +71,7 @@ public class SessionInterceptor implements TunnelInterceptor {
                 .length(data.limit())
                 .offSet(0)
                 .build();
-        helper.addData(saveData);
+        helper.addData(saveData);*/
         /*DataMeta dataMeta = DataManager.getInstance().putData(data.array(), 0, data.limit());
         dataMeta.setOut(true);
         session.addDataMeta(dataMeta);*/
@@ -72,7 +79,7 @@ public class SessionInterceptor implements TunnelInterceptor {
 
     @Override
     public void onClosed() {
-        DataCacheHelper.closeSession(session);
+        IOUtils.safeClose(helper);
         SessionManager.getInstance().moveToSaveQueue(session);
        /*handler.postDelayed(new Runnable() {
             @Override

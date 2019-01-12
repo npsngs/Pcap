@@ -8,18 +8,19 @@ import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
 import com.grumpycat.pcap.model.AppSessions;
+import com.grumpycat.pcap.tools.CommonTool;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 import com.grumpycat.pcaplib.appinfo.AppInfo;
-import com.grumpycat.pcaplib.util.Const;
+import com.grumpycat.pcaplib.session.NetSession;
 
 /**
  * Created by cc.he on 2018/12/6
  */
 public class AppSessionAdapter extends BaseAdapter<AppSessions> {
     @Override
-    protected int getItemLayoutRes() {
+    protected int getItemLayoutRes(int viewType) {
         return R.layout.item_app_sessions;
     }
 
@@ -32,7 +33,10 @@ public class AppSessionAdapter extends BaseAdapter<AppSessions> {
     private class AppSessionHolder extends BaseHolder<AppSessions> {
         private ImageView iv_icon;
         private TextView tv_name;
-        private TextView tv_info;
+        private TextView tv_info, tv_tag;
+        private ImageView iv_upload, iv_download;
+        private TextView tv_upload, tv_download;
+
 
         public AppSessionHolder(View itemView) {
             super(itemView);
@@ -43,6 +47,14 @@ public class AppSessionAdapter extends BaseAdapter<AppSessions> {
             iv_icon = findViewById(R.id.iv_icon);
             tv_name = findViewById(R.id.tv_name);
             tv_info = findViewById(R.id.tv_info);
+            tv_tag = findViewById(R.id.tv_tag);
+            tv_upload = findViewById(R.id.tv_upload);
+            tv_download = findViewById(R.id.tv_download);
+            iv_upload = findViewById(R.id.iv_upload);
+            iv_download = findViewById(R.id.iv_download);
+            iv_upload.setEnabled(false);
+            iv_download.setEnabled(false);
+            tv_tag.setVisibility(View.GONE);
         }
 
         @Override
@@ -57,12 +69,20 @@ public class AppSessionAdapter extends BaseAdapter<AppSessions> {
                 iv_icon.setImageResource(R.drawable.sym_def_app_icon);
                 tv_name.setText(R.string.unknow);
             }
+            tv_upload.setText(appSessions.getSendBytes()+"B");
+            tv_download.setText(appSessions.getRecvBytes()+"B");
 
-            tv_info.setText(String.format(Const.LOCALE, "s:%d  r:%d  session:%d  uid:%d",
-                    appSessions.getSendBytes(),
-                    appSessions.getRecvBytes(),
-                    appSessions.getSessionCount(),
-                    appSessions.getUid()));
+            NetSession lastSession = appSessions.getLastSession();
+
+
+            if(lastSession != null){
+                tv_info.setText(lastSession.getBriefInfo());
+                int protocol = lastSession.getProtocol();
+                CommonTool.setProtocolTag(protocol, tv_tag);
+            }else{
+                tv_info.setText("no session");
+                tv_tag.setVisibility(View.GONE);
+            }
             itemView.setOnClickListener((view)->onJump(appSessions.getUid()));
         }
     }

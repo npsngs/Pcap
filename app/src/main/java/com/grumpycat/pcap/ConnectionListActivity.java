@@ -200,8 +200,8 @@ public class ConnectionListActivity extends Activity {
     }
 
     private void startPacketDetailActivity(NetSession connection) {
-        String dir = Const.DATA_DIR
-                + StrUtil.formatYYMMDDHHMMSS(connection.getVpnStartTime())
+        String dir = Const.CACHE_DIR
+                + StrUtil.formatYYMMDD_HHMMSS(connection.getVpnStartTime())
                 + "/"
                 + connection.hashCode();
         PacketDetailActivity.startActivity(this, dir);

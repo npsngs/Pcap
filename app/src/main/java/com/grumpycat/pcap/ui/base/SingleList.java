@@ -17,6 +17,7 @@ public class SingleList{
     private View root;
     private Activity activity;
     private RecyclerView rcv;
+    private LinearLayoutManager lm;
     public SingleList(View root) {
         this.root = root;
         init();
@@ -29,13 +30,15 @@ public class SingleList{
     private void init(){
         Context context = getContext();
         rcv = findViewById(R.id.rcv);
-        rcv.setLayoutManager(new LinearLayoutManager(context,
-                LinearLayoutManager.VERTICAL, false));
-        DividerItemDecoration did = new DividerItemDecoration(context,
+        lm = new LinearLayoutManager(context,
+                LinearLayoutManager.VERTICAL, false);
+        rcv.setLayoutManager(lm);
+    }
+
+    public void showDivider(int height, int padding,  int color){
+        DividerItemDecoration did = new DividerItemDecoration(getContext(),
                 DividerItemDecoration.VERTICAL);
-        did.setDrawable(new ListDividerDrawable(
-                Util.dp2px(context, 1f),
-                0xffeeeeee));
+        did.setDrawable(new ListDividerDrawable(height,padding,color));
         rcv.addItemDecoration(did);
     }
 
@@ -54,6 +57,20 @@ public class SingleList{
         return root.findViewById(id);
     }
 
+    public void tryScrollToFirst(){
+        int firstPos = lm.findFirstCompletelyVisibleItemPosition();
+        if(firstPos == 0){
+            rcv.scrollToPosition(0);
+        }
+    }
+
+    public RecyclerView getRcv() {
+        return rcv;
+    }
+
+    public LinearLayoutManager getLm() {
+        return lm;
+    }
 
     public void setAdapter(BaseAdapter adapter){
         rcv.setAdapter(adapter);

@@ -172,7 +172,7 @@ public class DataManager implements DaemonWorker {
     }
 
     private File createCacheFile(String dir, int serialNum) throws IOException {
-        String pathStr = Const.DATA_DIR + dir + "/" + serialNum;
+        String pathStr = Const.CACHE_DIR + dir + "/" + serialNum;
         File file = new File(pathStr);
         if(!file.exists()){
             file.getParentFile().mkdirs();
@@ -191,7 +191,7 @@ public class DataManager implements DaemonWorker {
         }
 
         DataBuffer readCache = null;
-        String dir = Const.DATA_DIR + loadInfo.dir + "/";
+        String dir = Const.CACHE_DIR + loadInfo.dir + "/";
         for(DataMeta dataMeta :loadInfo.metas){
             try {
                 int serialNum = dataMeta.getSerialNum();

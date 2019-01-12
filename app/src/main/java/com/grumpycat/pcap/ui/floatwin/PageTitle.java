@@ -15,17 +15,20 @@ import com.grumpycat.pcap.tools.ActionDetector;
  */
 public abstract class PageTitle implements View.OnClickListener{
     private ImageView iv_left;
-    private ImageView iv_right;
+    private ImageView iv_right1,iv_right2;
     private TextView tv_title;
-
+    private View title_bar;
     @SuppressLint("ClickableViewAccessibility")
     public PageTitle(View root) {
+        this.title_bar = root.findViewById(R.id.title_bar);
         this.iv_left = root.findViewById(R.id.iv_left);
-        this.iv_right = root.findViewById(R.id.iv_right);
+        this.iv_right1 = root.findViewById(R.id.iv_right1);
+        this.iv_right2 = root.findViewById(R.id.iv_right2);
         this.tv_title = root.findViewById(R.id.tv_title);
         iv_left.setOnClickListener(this);
-        iv_right.setOnClickListener(this);
-        tv_title.setOnTouchListener(new ActionDetector(-1) {
+        iv_right1.setOnClickListener(this);
+        iv_right2.setOnClickListener(this);
+        title_bar.setOnTouchListener(new ActionDetector(-1) {
             @Override
             protected void onMove(float dx, float dy) {
                 onPageMove(dx, dy);
@@ -43,8 +46,11 @@ public abstract class PageTitle implements View.OnClickListener{
             case R.id.iv_left:
                 onLeftClick();
                 break;
-            case R.id.iv_right:
-                onRightClick();
+            case R.id.iv_right1:
+                onRightClick(0);
+                break;
+            case R.id.iv_right2:
+                onRightClick(1);
                 break;
         }
     }
@@ -53,8 +59,15 @@ public abstract class PageTitle implements View.OnClickListener{
         iv_left.setImageResource(resId);
     }
 
-    public void setRightBtn(@DrawableRes int resId){
-        iv_right.setImageResource(resId);
+    public void setRightBtn(@DrawableRes int resId, int num){
+        if ( num == 0){
+            iv_right1.setVisibility(View.VISIBLE);
+            iv_right1.setImageResource(resId);
+        }else{
+            iv_right1.setVisibility(View.VISIBLE);
+            iv_right2.setVisibility(View.VISIBLE);
+            iv_right2.setImageResource(resId);
+        }
     }
     public void setTitleStr(@StringRes int resId){
         tv_title.setText(resId);
@@ -64,7 +77,7 @@ public abstract class PageTitle implements View.OnClickListener{
     }
 
     protected abstract void onLeftClick();
-    protected abstract void onRightClick();
+    protected abstract void onRightClick(int num);
     protected abstract void onPageMove(float dx, float dy);
     protected abstract void onPageMoveEnded();
 

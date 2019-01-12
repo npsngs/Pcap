@@ -1,11 +1,7 @@
 package com.grumpycat.pcap.ui.main;
 
 import android.app.Activity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
-import com.grumpycat.pcap.PacketDetailActivity;
 import com.grumpycat.pcap.R;
 import com.grumpycat.pcap.tools.AppSessionListener;
 import com.grumpycat.pcap.model.AppSessions;
@@ -14,9 +10,12 @@ import com.grumpycat.pcap.model.SessionListener;
 import com.grumpycat.pcap.ui.adapter.AppSessionAdapter;
 import com.grumpycat.pcap.ui.adapter.SessionsAdapter;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
-import com.grumpycat.pcap.ui.base.ListDividerDrawable;
+import com.grumpycat.pcap.ui.base.SingleList;
 import com.grumpycat.pcap.ui.base.UiWidget;
 import com.grumpycat.pcap.tools.Util;
+import com.grumpycat.pcap.ui.detail.SessionDetailActi;
+import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.util.StrUtil;
@@ -25,29 +24,29 @@ import com.grumpycat.pcaplib.util.StrUtil;
  * Created by cc.he on 2018/11/27
  */
 public class CaptureList extends UiWidget{
-    private RecyclerView rcv;
     private SessionManager sm;
     private SessionsAdapter captureAdapter;
     private AppSessionAdapter appSessionAdapter;
     private BaseAdapter adapter;
+    private SingleList singleList;
     public CaptureList(Activity activity) {
         super(activity);
-        rcv = findViewById(R.id.rcv);
-        rcv.setLayoutManager(new LinearLayoutManager(activity,
-                LinearLayoutManager.VERTICAL, false));
-        DividerItemDecoration did = new DividerItemDecoration(activity,
-                DividerItemDecoration.VERTICAL);
-        did.setDrawable(new ListDividerDrawable(
-                Util.dp2px(activity, 1f),
-                0xffeeeeee));
-        rcv.addItemDecoration(did);
+        singleList = new SingleList(activity);
+        singleList.showDivider(
+                Util.dp2px(activity, 0.5f),0,
+                0xff787878);
         captureAdapter = new SessionsAdapter(){
             @Override
             protected void onJump(NetSession session) {
+                AppInfo appInfo = AppManager.getApp(session.getUid());
+                String appName = appInfo != null
+                        ?appInfo.name
+                        :activity.getString(R.string.unknow);
                 SessionDetailActi.goLaunch(getActivity(),
-                        StrUtil.formatYYMMDDHHMMSS(session.getVpnStartTime()),
+                        appName,
+                        session.getProtocol(),
+                        StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()),
                         session.hashCode());
-                //PacketDetailActivity.startActivity(getActivity(), dir);
             }
         };
         appSessionAdapter = new AppSessionAdapter(){
@@ -89,7 +88,7 @@ public class CaptureList extends UiWidget{
         SessionSet.removeAppSessionListener(appSessionListener);
         this.uid = uid;
         adapter = captureAdapter;
-        rcv.setAdapter(adapter);
+        singleList.setAdapter(adapter);
         captureAdapter.setData(SessionSet.getSessionByUid(uid));
     }
 
@@ -98,7 +97,7 @@ public class CaptureList extends UiWidget{
         SessionSet.addAppSessionListener(appSessionListener);
         SessionSet.removeSessionListener(sessionListener);
         adapter = appSessionAdapter;
-        rcv.setAdapter(adapter);
+        singleList.setAdapter(adapter);
         appSessionAdapter.setData(SessionSet.getAppSessions());
     }
 
@@ -120,6 +119,7 @@ public class CaptureList extends UiWidget{
                 return;
             }
             captureAdapter.add(session, 0);
+            trySrollToFirst();
         }
 
         @Override
@@ -139,6 +139,7 @@ public class CaptureList extends UiWidget{
         @Override
         public void onNewAdd(AppSessions session) {
             appSessionAdapter.add(session, 0);
+            trySrollToFirst();
         }
 
         @Override
@@ -147,4 +148,10 @@ public class CaptureList extends UiWidget{
         }
     };
 
+    private void trySrollToFirst(){
+        int firstPos = singleList.getLm().findFirstCompletelyVisibleItemPosition();
+        if(firstPos == 0){
+            singleList.getRcv().scrollToPosition(0);
+        }
+    }
 }

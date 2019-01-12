@@ -1,64 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <RelativeLayout
-        android:id="@+id/title_container"
-        android:layout_width="match_parent"
-        android:layout_height="50dp">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@color/black_DBDBDB"
-            android:gravity="center"
-            android:text="@string/select_apps" />
-
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:scaleType="center"
-            android:src="@drawable/back_btn_selector" />
-
-
-        <TextView
-            android:padding="10dp"
-            android:id="@+id/tv_ok"
-            android:layout_marginRight="10dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/black_DBDBDB"
-            android:text="@string/ok" />
-
-
-        <TextView
-            android:padding="10dp"
-            android:id="@+id/tv_all"
-            android:layout_marginRight="10dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/tv_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/black_DBDBDB"
-            android:text="@string/select_all" />
-    </RelativeLayout>
-
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/content_padding"
+    android:background="@drawable/sp_card_bg"
+    android:elevation="2dp">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rcv"
-        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
-    <ProgressBar
-        android:visibility="gone"
-        android:id="@+id/pb"
-        android:layout_centerInParent="true"
-        android:layout_width="45dp"
-        android:layout_height="45dp" />
 </RelativeLayout>

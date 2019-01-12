@@ -44,8 +44,6 @@ public class PageHome {
         pages = new ArrayList<>();
         inflater = LayoutInflater.from(service);
         root = (ViewGroup) View.inflate(service, R.layout.float_page_home, null);
-        int padding = Util.dp2px(service, 6.0f);
-        root.setPadding(padding,padding,padding,padding);
         container = root.findViewById(R.id.rl_container);
         pageTitle = new PageTitle(root) {
             @Override
@@ -54,8 +52,8 @@ public class PageHome {
             }
 
             @Override
-            protected void onRightClick() {
-                getTopPage().onRightClick();
+            protected void onRightClick(int num) {
+                getTopPage().onRightClick(num);
             }
 
             @Override
@@ -92,8 +90,8 @@ public class PageHome {
         pageTitle.setLeftBtn(resId);
     }
 
-    public void setRightBtn(int resId) {
-        pageTitle.setRightBtn(resId);
+    public void setRightBtn(int resId, int num) {
+        pageTitle.setRightBtn(resId, num);
     }
 
     public void setTitleStr(int resId) {
@@ -178,6 +176,7 @@ public class PageHome {
             goNextPage(null, new SessionsPage(this));
         }else{
             root.setVisibility(View.VISIBLE);
+            getTopPage().onStart();
         }
     }
 
@@ -188,6 +187,7 @@ public class PageHome {
     }
 
     public void close(){
+        getTopPage().onStop();
         wm.removeView(root);
         wm = null;
         root = null;

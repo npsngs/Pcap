@@ -18,7 +18,7 @@ public class AppSessions {
     private int recvPackets;
     private int serialNumber;
     private SparseArray<NetSession> sessions;
-
+    private NetSession lastSession;
     public AppSessions() {
         sessions = new SparseArray<>();
         sendBytes = 0;
@@ -32,6 +32,7 @@ public class AppSessions {
     }
 
     public NetSession insertOrUpdate(int key, NetSession session){
+        lastSession = session;
         NetSession localSession = sessions.get(key);
         if(localSession != null){
             sendBytes -= localSession.sendByte;
@@ -58,6 +59,9 @@ public class AppSessions {
         return localSession;
     }
 
+    public NetSession getLastSession() {
+        return lastSession;
+    }
 
     public NetSession valueAt(int index) {
         return sessions.valueAt(index);

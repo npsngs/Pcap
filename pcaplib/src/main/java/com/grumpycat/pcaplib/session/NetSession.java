@@ -1,5 +1,7 @@
 package com.grumpycat.pcaplib.session;
 
+import android.text.TextUtils;
+
 import com.grumpycat.pcaplib.data.DataMeta;
 import com.grumpycat.pcaplib.protocol.HttpHeader;
 import com.grumpycat.pcaplib.util.Const;
@@ -160,6 +162,33 @@ public class NetSession implements Serializable , Cloneable{
                 remotePort & 0xFFFF,
                 sendByte, sendPacket, receiveByte, receivePacket);
     }
+
+    public String getBriefInfo(){
+        switch (protocol){
+            case Const.HTTP:
+            case Const.HTTPS:
+                if(httpHeader != null){
+                    if (!TextUtils.isEmpty(httpHeader.url)) {
+                        return httpHeader.url;
+                    } else if(!TextUtils.isEmpty(httpHeader.host)){
+                        return httpHeader.host;
+                    }else{
+                        return String.format(Const.LOCALE,
+                                "%s:%d",
+                                StrUtil.ip2Str(remoteIp),
+                                remotePort);
+                    }
+                }
+            default:
+                return String.format(Const.LOCALE,
+                        "%s:%d",
+                        StrUtil.ip2Str(remoteIp),
+                        remotePort);
+        }
+    }
+
+
+
 
     public NetSession copy(){
         try {

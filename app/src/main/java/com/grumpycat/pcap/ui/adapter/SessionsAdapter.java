@@ -6,12 +6,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.tools.CommonTool;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
-import com.grumpycat.pcaplib.protocol.HttpHeader;
 import com.grumpycat.pcaplib.session.NetSession;
-import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.StrUtil;
 
 /**
@@ -20,7 +19,7 @@ import com.grumpycat.pcaplib.util.StrUtil;
 public class SessionsAdapter extends BaseAdapter<NetSession> {
 
     @Override
-    protected int getItemLayoutRes() {
+    protected int getItemLayoutRes(int viewType) {
         return R.layout.item_session;
     }
 
@@ -32,9 +31,9 @@ public class SessionsAdapter extends BaseAdapter<NetSession> {
 
 
     private class SessionItemHolder extends BaseHolder<NetSession> {
-        private TextView tv_address;
+        private TextView tv_tag;
+        private TextView tv_time;
         private TextView tv_info;
-        private TextView tv_flag;
 
         public SessionItemHolder(View itemView) {
             super(itemView);
@@ -42,9 +41,9 @@ public class SessionsAdapter extends BaseAdapter<NetSession> {
 
         @Override
         protected void initWithView(View itemView) {
-            tv_address = findViewById(R.id.tv_address);
+            tv_tag = findViewById(R.id.tv_tag);
             tv_info = findViewById(R.id.tv_info);
-            tv_flag = findViewById(R.id.tv_flag);
+            tv_time = findViewById(R.id.tv_time);
         }
 
         @Override
@@ -52,46 +51,12 @@ public class SessionsAdapter extends BaseAdapter<NetSession> {
             int pos = getAdapterPosition();
             NetSession session = dataGetter.getItemData(pos);
             int protocol = session.getProtocol();
-            switch (protocol){
-                case Const.HTTP:
-                case Const.HTTPS: {
-                    tv_flag.setText(protocol==Const.HTTP?"HTTP":"HTTPS");
-                    HttpHeader httpHeader = session.getHttpHeader();
-                    if(httpHeader != null){
-                        if (httpHeader.url != null) {
-                            tv_address.setText(httpHeader.url);
-                        } else if(httpHeader.host != null){
-                            tv_address.setText(httpHeader.host);
-                        }else{
-                            tv_address.setText(String.format(Const.LOCALE,
-                                    "%s:%d",
-                                    StrUtil.ip2Str(session.getRemoteIp()),
-                                    session.getRemotePort()));
-                        }
-                    }
-                }break;
-                case Const.TCP:
-                    tv_flag.setText("TCP");
-                    tv_address.setText(String.format(Const.LOCALE,
-                            "%s:%d",
-                            StrUtil.ip2Str(session.getRemoteIp()),
-                            session.getRemotePort()));
-                    break;
-            }
-            tv_info.setText(String.format(Const.LOCALE,
-                    "s:%db   r:%db   UID:%d  ID:%d",
-                    session.sendByte,
-                    session.receiveByte,
-                    session.getUid(),
-                    session.hashCode()));
+            CommonTool.setProtocolTag(protocol, tv_tag);
+            tv_time.setText(String.format("[ %s ]",
+                    StrUtil.formatYYMMDDHHMMSS(session.lastActiveTime)));
+            tv_info.setText(session.getBriefInfo());
 
-            itemView.setOnClickListener((view)->{
-                /*String dir = Const.DATA_DIR
-                        + StrUtil.formatYYMMDDHHMMSS(session.getVpnStartTime())
-                        + "/"
-                        + session.hashCode();*/
-                onJump(session);
-            });
+            itemView.setOnClickListener((view)-> onJump(session));
         }
     }
 

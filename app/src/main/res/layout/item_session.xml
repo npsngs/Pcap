@@ -2,35 +2,50 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
-    <TextView
-        android:id="@+id/tv_address"
-        android:lines="1"
-        android:textSize="14sp"
-        android:textColor="#454545"
+    android:padding="@dimen/content_padding">
+
+    <RelativeLayout
+        android:id="@+id/ll_info"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="HTTP"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:visibility="gone"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:gravity="center"
+            android:textSize="10sp"
+            android:id="@+id/tv_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_marginLeft="55dp"
+            android:id="@+id/tv_time"
+            android:textSize="10sp"
+            android:textColor="@color/gray_c3_text"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+
 
     <TextView
-        android:layout_marginTop="8dp"
-        android:layout_below="@+id/tv_address"
+        android:layout_marginTop="2dp"
+        android:maxLines="3"
         android:layout_alignParentLeft="true"
-        android:id="@+id/tv_info"
-        android:lines="1"
-        android:textSize="12sp"
-        android:textColor="#787878"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/tv_flag"
-        android:layout_marginRight="10dp"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:textColor="#121212"
-        android:textSize="16sp"
+        android:layout_below="@+id/ll_info"
+        android:textColor="@color/white_text"
+        android:textSize="12sp"
+        android:id="@+id/tv_info"
+        android:ellipsize="end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
 </RelativeLayout>

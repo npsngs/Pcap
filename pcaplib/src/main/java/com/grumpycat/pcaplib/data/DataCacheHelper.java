@@ -1,88 +1,122 @@
 package com.grumpycat.pcaplib.data;
-import android.util.SparseArray;
-
-import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.IOUtils;
 import com.grumpycat.pcaplib.util.ThreadPool;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cc.he on 2018/12/7
  */
-public class DataCacheHelper {
+public class DataCacheHelper implements Closeable {
     private static String cacheDir;
-    private static SparseArray<RandomAccessFile> cacheFiles = new SparseArray<>();
     public static void reset(String vpnTime){
         cacheDir = new StringBuilder()
                 .append(Const.CACHE_DIR)
                 .append(vpnTime)
                 .append("/")
                 .toString();
-        cacheFiles.clear();
     }
 
-    public static void close(){
-        cacheDir = null;
-        cacheFiles.clear();
+    @Override
+    public void close(){
+        IOUtils.safeClose(cacheFile);
+        cacheFile = null;
     }
 
-    public static void saveData(NetSession session, byte[] data, int size){
-        ThreadPool.execute(new SaveAction(session.hashCode(), data, size));
-    }
-
-    public static void closeSession(NetSession session){
-        RandomAccessFile randomAccessFile = cacheFiles.get(session.hashCode());
-        if(randomAccessFile != null){
-            cacheFiles.remove(session.hashCode());
-            IOUtils.safeClose(randomAccessFile);
+    private int reqNum = 0;
+    private int respNum = 0;
+    private int count;
+    private RandomAccessFile cacheFile;
+    private int cursorPos;
+    private String filePath;
+    private boolean lastIsReq;
+    private String lastFile;
+    public DataCacheHelper(int sessionId) {
+        cursorPos = -1;
+        filePath = cacheDir+sessionId+"/";
+        count = 0;
+        try {
+            File dir = new File(filePath);
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
-    private static class SaveAction implements Runnable{
-        private int sessionId;
+    public void saveData(byte[] data, int size, boolean isRequest){
+        ThreadPool.saveCache(new SaveAction(data, size, isRequest));
+    }
+
+
+    private class SaveAction implements Runnable{
         private byte[] data;
         private int size;
-
-        public SaveAction(int sessionId, byte[] data, int size) {
-            this.sessionId = sessionId;
+        private boolean isRequest;
+        public SaveAction(byte[] data, int size, boolean isRequest) {
             this.data = data;
             this.size = size;
+            this.isRequest = isRequest;
         }
 
         @Override
         public void run() {
             try {
-                RandomAccessFile file = cacheFiles.get(sessionId);
-                if(file == null){
-                    File dir = new File(cacheDir);
-                    if(!dir.exists()){
-                        dir.mkdirs();
+                if(count == 0 || lastIsReq != isRequest){
+                    lastIsReq = isRequest;
+                    String name = isRequest?"req":"resp";
+                    if(isRequest){
+                        name += reqNum;
+                        reqNum++;
+                    }else{
+                        name += respNum;
+                        respNum++;
                     }
-                    file = new RandomAccessFile(cacheDir+sessionId, "rw");
-                    cacheFiles.put(sessionId, file);
+                    lastFile = filePath + name;
+                    cacheFile = new RandomAccessFile(lastFile, "rw");
+                    cacheFile.write(data, 0, size);
+                    cacheFile.close();
+                }else{
+                    cacheFile = new RandomAccessFile(lastFile, "rw");
+                    long len = cacheFile.length();
+                    cacheFile.seek(len);
+                    cacheFile.write(data, 0, size);
+                    cacheFile.close();
                 }
-                file.write(data,0, size);
+                count++;
             }catch (Exception e){
                 e.printStackTrace();
             }
         }
     }
 
-
-    public static DataParser createParser(String vpnStartTime, int sessionId){
-        String fileName = new StringBuilder()
+    public static ParseResult parseSession(String vpnStartTime, int sessionId){
+        String dirPath = new StringBuilder()
                 .append(Const.CACHE_DIR)
                 .append(vpnStartTime)
                 .append("/").append(sessionId)
                 .toString();
-        try {
-            return new DataParser(fileName, sessionId);
-        }catch (Exception e){
-            e.printStackTrace();
+
+        ParseResult result = new ParseResult();
+        List<ParseMeta> ret = new ArrayList<>();
+        result.setParseMetas(ret);
+        File dir = new File(dirPath);
+        File[] files = dir.listFiles();
+        if(files != null && files.length > 0){
+            for(File f:files){
+                if(f.getName().startsWith("req")){
+                    ret.add(new ParseMeta(true, f));
+                }else if(f.getName().startsWith("resp")){
+                    ret.add(new ParseMeta(false, f));
+                }
+            }
         }
-        return null;
+        return result;
     }
 }

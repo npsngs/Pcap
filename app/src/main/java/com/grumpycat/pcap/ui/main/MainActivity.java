@@ -1,28 +1,32 @@
 package com.grumpycat.pcap.ui.main;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.grumpycat.pcap.R;
-import com.grumpycat.pcap.tools.AppConfigs;
+import com.grumpycat.pcap.base.BaseActi;
 import com.grumpycat.pcap.model.SessionSet;
-import com.grumpycat.pcaplib.appinfo.AppManager;
+import com.grumpycat.pcap.tools.AppConfigs;
 import com.grumpycat.pcap.tools.Config;
+import com.grumpycat.pcap.ui.floatwin.FloatingService;
 import com.grumpycat.pcaplib.VpnController;
 import com.grumpycat.pcaplib.VpnMonitor;
+import com.grumpycat.pcaplib.appinfo.AppManager;
+import com.grumpycat.pcaplib.util.CommonUtil;
+
 
 /**
  * Created by cc.he on 2018/11/27
  */
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends BaseActi implements Toolbar.OnMenuItemClickListener {
     private DrawerLayout dl;
     private View menu;
-    private ImageView btn_toggle;
+    private MenuItem startBtn;
     private AppInfoBar appInfoBar;
     private CaptureList captureList;
     private SideMenu sideMenu;
@@ -30,18 +34,38 @@ public class MainActivity extends Activity implements View.OnClickListener{
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acti_main);
+
+        getToolbar().setNavigationIcon(R.drawable.sl_ic_menu);
+        getToolbar().setNavigationOnClickListener(v -> toggleMenu());
+
+        getToolbar().inflateMenu(R.menu.title_main);
+        startBtn = getToolbar().getMenu().findItem(R.id.it_start_record);
+        getToolbar().setOnMenuItemClickListener(this);
+        appInfoBar = new AppInfoBar(this);
+
+        captureList = new CaptureList(this);
+
         dl = findViewById(R.id.dl);
         menu = findViewById(R.id.menu);
-        btn_toggle = findViewById(R.id.btn_toggle);
-        findViewById(R.id.btn_menu).setOnClickListener(this);
-        findViewById(R.id.tv_select_app).setOnClickListener(this);
-        btn_toggle.setOnClickListener(this);
-        appInfoBar = new AppInfoBar(this);
-        captureList = new CaptureList(this);
         sideMenu = new SideMenu(this);
-        AppManager.asyncLoadAppInfo(this, () -> loadConfigs());
+        if(AppManager.isFinishLoad()){
+            loadConfigs();
+        }else{
+            showProgressBar();
+            AppManager.asyncLoadAppInfo(this, () -> loadConfigs());
+        }
+        FloatingService.closeFloatingWindow(this);
         VpnMonitor.setStatusListener(statusListener);
         SessionSet.startObserve();
+    }
+
+    private void toggleMenu(){
+        if(dl.isDrawerOpen(menu)){
+            dl.closeDrawer(menu);
+        }else{
+            dl.openDrawer(menu);
+            sideMenu.onOpen();
+        }
     }
 
     @Override
@@ -58,7 +82,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     private void loadConfigs(){
         int[] uids = Config.getSelectApps();
+        if(uids == null || uids.length == 0){
+            VpnMonitor.setAllowUids(null);
+        }else{
+            VpnMonitor.setAllowUids(uids);
+        }
+
         runOnUiThread(()->{
+            hideProgressBar();
             appInfoBar.setAppUid(uids);
             if(VpnMonitor.isSingleApp()){
                 captureList.showSingleApp(VpnMonitor.getSingleAppUid());
@@ -68,30 +99,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         });
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btn_menu:
-                toggleMenu();
-                break;
-            case R.id.tv_select_app:
-                gotoSelectAppPage();
-                break;
-            case R.id.btn_toggle:
-                if(VpnMonitor.isVpnRunning()){
-                    VpnController.stopVpn(this);
-                }else {
-                    VpnController.setIsUdpNeedSave(!AppConfigs.isFilterUdp());
-                    VpnController.setIsCrackTLS(AppConfigs.isCrackTls());
-
-                    Intent intent = VpnController.startVpn(this);
-                    if (intent != null) {
-                        startActivityForResult(intent, 1024);
-                    }
-                }
-                break;
-        }
-    }
 
     private final int REQUEST_PACKAGE = 1024;
     private void gotoSelectAppPage(){
@@ -102,37 +109,81 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_PACKAGE && resultCode == RESULT_OK) {
-            int[] uids = data.getIntArrayExtra("app_uid");
-            Config.saveSelectApps(uids);
-            appInfoBar.setAppUid(uids);
-            if(VpnMonitor.isSingleApp()){
-                captureList.showSingleApp(VpnMonitor.getSingleAppUid());
-            }else{
-                captureList.showMultiApp();
-            }
+        if(resultCode == RESULT_OK){
+           switch (requestCode){
+               case REQUEST_PACKAGE:
+                   int[] uids = data.getIntArrayExtra("app_uid");
+                   Config.saveSelectApps(uids);
+                   if(uids == null || uids.length == 0){
+                       VpnMonitor.setAllowUids(null);
+                   }else{
+                       VpnMonitor.setAllowUids(uids);
+                   }
+                   appInfoBar.setAppUid(uids);
+                   if(VpnMonitor.isSingleApp()){
+                       captureList.showSingleApp(VpnMonitor.getSingleAppUid());
+                   }else{
+                       captureList.showMultiApp();
+                   }
+                   break;
+               case CommonUtil.REQUEST_EXTERNAL_STORAGE:
+                   startVPN();
+                   break;
+           }
+        }
+
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.it_start_record:
+                if(VpnMonitor.isVpnRunning()){
+                    VpnController.stopVpn(this);
+                    startBtn.setIcon(R.drawable.sl_ic_start_record);
+                }else {
+                    boolean hasPermit = CommonUtil.checkPermission(this,
+                            "android.permission.WRITE_EXTERNAL_STORAGE");
+                    if(!hasPermit){
+                        return false;
+                    }
+
+                    startVPN();
+                }
+                return true;
+            case R.id.it_select_apps:
+                gotoSelectAppPage();
+                return true;
+            case R.id.it_toggle_floating:
+                FloatingService.showFloatingWindow(this);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
-    private void toggleMenu(){
-        if(dl.isDrawerOpen(menu)){
-            dl.closeDrawer(menu);
-        }else{
-            dl.openDrawer(menu);
-            sideMenu.onOpen();
-        }
-    }
+    private void startVPN() {
+        VpnController.setIsUdpNeedSave(!AppConfigs.isFilterUdp());
+        VpnController.setIsCrackTLS(AppConfigs.isCrackTls());
 
+        Intent intent = VpnController.startVpn(this);
+        if (intent != null) {
+            startActivityForResult(intent, 1023);
+        }
+        SessionSet.clear();
+        startBtn.setIcon(R.drawable.sl_ic_stop_record);
+    }
 
     private VpnMonitor.StatusListener statusListener = new VpnMonitor.StatusListener() {
         @Override
         public void onVpnStart() {
-            runOnUiThread(()-> btn_toggle.setImageResource(R.mipmap.ic_stop));
+            runOnUiThread(()-> startBtn.setIcon(R.drawable.sl_ic_stop_record));
         }
 
         @Override
         public void onVpnStop() {
-            runOnUiThread(()-> btn_toggle.setImageResource(R.mipmap.ic_start));
+            runOnUiThread(()-> startBtn.setIcon(R.drawable.sl_ic_start_record));
         }
     };
 }

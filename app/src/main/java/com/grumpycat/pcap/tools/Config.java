@@ -11,6 +11,8 @@ import java.util.List;
  * Created by cc.he on 2018/11/27
  */
 public class Config {
+    public static final long MAX_LOAD = 1024*8;
+
     private static Context context;
     private static SharedPreferences sp;
     public static void init(Context context){

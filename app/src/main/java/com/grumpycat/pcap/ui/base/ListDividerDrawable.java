@@ -15,9 +15,19 @@ import android.support.annotation.Nullable;
  */
 public class ListDividerDrawable extends Drawable {
     private int height;
+    private int padding;
     private Paint paint;
+    public ListDividerDrawable(int height, int padding, @ColorInt int color) {
+        this.height = height;
+        this.padding = padding;
+        paint = new Paint();
+        paint.setAntiAlias(false);
+        paint.setColor(color);
+    }
+
     public ListDividerDrawable(int height, @ColorInt int color) {
         this.height = height;
+        this.padding = 0;
         paint = new Paint();
         paint.setAntiAlias(false);
         paint.setColor(color);
@@ -32,6 +42,8 @@ public class ListDividerDrawable extends Drawable {
     public void draw(@NonNull Canvas canvas) {
         Rect bounds = getBounds();
         if (bounds != null) {
+            bounds.left += padding;
+            bounds.right -= padding;
             canvas.drawRect(bounds, paint);
         }
     }

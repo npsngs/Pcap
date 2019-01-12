@@ -64,7 +64,7 @@ public class UDPTunnel implements SelectHandler {
 
         if (VpnController.isUdpNeedSave()) {
             String helperDir = new StringBuilder()
-                    .append(Const.DATA_DIR)
+                    .append(Const.CACHE_DIR)
                     .append(VpnMonitor.getVpnStartTimeStr())
                     .append("/")
                     .append(session.hashCode())

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/it_toggle_floating"
+        android:title="@string/floating_toggle"
+        android:icon="@drawable/sl_ic_mini"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/it_select_apps"
+        android:title="@string/select_package"
+        android:icon="@drawable/sl_ic_select_apps"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/it_start_record"
+        android:title="@string/vpn_toggle"
+        android:icon="@drawable/sl_ic_start_record"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/it_sort"
+        android:title="@string/sort"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/it_filter"
+        android:title="@string/filter"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/it_clear"
+        android:title="@string/clear"
+        app:showAsAction="never"
+        />
+</menu>

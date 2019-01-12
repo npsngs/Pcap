@@ -7,13 +7,14 @@ import android.support.annotation.Nullable;
 import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
+import com.grumpycat.pcap.base.BaseActi;
 import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 
 /**
  * Created by cc.he on 2018/11/29
  */
-public class SessionListActivity extends Activity {
+public class SessionListActivity extends BaseActi {
 
     public static void gotoActi(Activity from, int uid){
         Intent intent = new Intent(from, SessionListActivity.class);
@@ -29,13 +30,11 @@ public class SessionListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acti_session_list);
         uid = getIntent().getIntExtra("uid", 0);
-        findViewById(R.id.btn_left).setOnClickListener((v)->finish());
-        TextView tv_title = findViewById(R.id.tv_title);
         if(uid != 0){
             appInfo = AppManager.getApp(uid);
-            tv_title.setText(appInfo.name);
+            getToolbar().setTitle(appInfo.name);
         }else{
-            tv_title.setText(R.string.unknow);
+            getToolbar().setTitle(R.string.unknow);
         }
 
         captureList = new CaptureList(this);

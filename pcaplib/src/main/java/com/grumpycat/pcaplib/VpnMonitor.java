@@ -110,7 +110,7 @@ public class VpnMonitor {
     }
     public static void setVpnStartTime(long vpnStartTime) {
         VpnMonitor.vpnStartTime = vpnStartTime;
-        vpnStartTimeStr = StrUtil.formatYYMMDDHHMMSS(vpnStartTime);
+        vpnStartTimeStr = StrUtil.formatYYMMDD_HHMMSS(vpnStartTime);
     }
 
     public static void setStatusListener(StatusListener statusListener) {

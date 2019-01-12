@@ -106,7 +106,7 @@ public class SaveDataFileParser {
     }
 
     private static ShowData getRawDataFromFile(File childFile) {
-        Source fileSource = null;
+        Source fileSource;
         ShowData showData = new ShowData();
         try {
             String name = childFile.getName();

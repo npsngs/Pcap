@@ -50,13 +50,21 @@ public class IPHeader {
 		mOffset = offset;
 	}
 
-	public void Default() {
+    public IPHeader() {
+    }
+
+    public void Default() {
 		setHeaderLength(20);
 		setTos((byte) 0);
 		setTotalLength(0);
 		setIdentification(0);
 		setFlagsAndOffset((short) 0);
 		setTTL((byte) 64);
+	}
+
+	public void setData(byte[] data,int offset){
+		mData = data;
+		mOffset = offset;
 	}
 
 	public int getDataLength() {

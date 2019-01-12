@@ -20,7 +20,7 @@ import java.util.List;
 public class AppManager {
     private static SparseArray<AppInfo> apps = new SparseArray<>();
 
-    private static volatile boolean isFinishLoad = true;
+    private static volatile boolean isFinishLoad = false;
     public static boolean isFinishLoad(){
         return isFinishLoad;
     }

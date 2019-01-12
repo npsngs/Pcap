@@ -32,9 +32,9 @@ public class SideMenu extends UiWidget implements View.OnClickListener,
     private Switch swt_crack_tls;
     public SideMenu(Activity activity) {
         super(activity);
-        findViewById(R.id.tv_instrument).setOnClickListener(this);
-        findViewById(R.id.tv_history).setOnClickListener(this);
-        findViewById(R.id.tv_clear).setOnClickListener(this);
+        findViewById(R.id.rl_history).setOnClickListener(this);
+        findViewById(R.id.rl_cache_dir).setOnClickListener(this);
+        findViewById(R.id.rl_cache_clear).setOnClickListener(this);
         swt_floating = findViewById(R.id.swt_floating);
         swt_filter_udp = findViewById(R.id.swt_filter_udp);
         swt_crack_tls = findViewById(R.id.swt_crack_tls);
@@ -59,18 +59,18 @@ public class SideMenu extends UiWidget implements View.OnClickListener,
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.tv_history:
+            case R.id.rl_history:
                 getActivity().startActivity(new Intent(getActivity(), HistoryActivity.class));
                 break;
-            case R.id.tv_instrument:
+            case R.id.rl_cache_dir:
                 installCert(getActivity());
                 break;
-            case R.id.tv_clear:
+            case R.id.rl_cache_clear:
                 ThreadPool.execute(()-> {
                     SessionManager.getInstance().clearHistory();
                     getActivity().runOnUiThread(()-> Toast.makeText(
                             getActivity(),
-                            "Finish Clear!",
+                            getActivity().getString(R.string.clear_finish),
                             Toast.LENGTH_LONG)
                             .show());
                 });

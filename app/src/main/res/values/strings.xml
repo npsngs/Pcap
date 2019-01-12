@@ -6,7 +6,8 @@
 
 
     <string name="clear_history">Clear History Data</string>
-    <string name="success_clear_history_data">Success clear history data!</string>
+    <string name="success_clear_history_data">Success clear history packetData!</string>
+    <string name="select_package">select app</string>
 
     <string name="system">System</string>
     <string name="unknow">Unknow</string>
@@ -38,9 +39,25 @@
     <string name="instrument">Instrument</string>
     <string name="select_apps">Select Apps</string>
     <string name="select_all">Select All</string>
+    <string name="select">Select</string>
     <string name="ok">OK</string>
-    <string name="clear">Clear</string>
-    <string name="data">Data</string>
+    <string name="packetData">Data</string>
     <string name="net_session">Net Sessions</string>
+
+    <string name="cache_path">Cache Path</string>
+
+
+    <string name="sort">Sort</string>
+    <string name="filter">Filter</string>
+    <string name="clear">Clean</string>
+    <string name="all_app">All App</string>
+
+    <string name="float_window">Open Floating Window</string>
+    <string name="filter_udp">Filter Udp Packet</string>
+    <string name="crack_ssl">Crack SSL</string>
+    <string name="clear_finish">Clear Finished!</string>
+    <string name="vpn_toggle">Vpn Toggle</string>
+    <string name="floating_toggle">Floating Toggle</string>
+
 
 </resources>

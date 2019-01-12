@@ -26,8 +26,7 @@ public interface Const {
     int MAX_PAYLOAD_SIZE = 2520;
     String BASE_DIR = Environment.getExternalStorageDirectory() + "/Pcap/";
     String CACHE_DIR = BASE_DIR+ "cache/";
-    String DATA_DIR = BASE_DIR + "data/";
-    String CONFIG_DIR=BASE_DIR+"config/";
+    String CONFIG_DIR= BASE_DIR+"config/";
     String VPN_SP_NAME="vpn_sp_name";
     String IS_UDP_NEED_SAVE="isUDPNeedSave";
     String IS_UDP_SHOW = "isUDPShow";

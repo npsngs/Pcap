@@ -92,9 +92,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseHolder<T>>
         }
     }
 
-    protected abstract @LayoutRes int getItemLayoutRes();
+    protected abstract @LayoutRes int getItemLayoutRes(int viewType);
     protected View createItemView(@NonNull ViewGroup parent, int viewType){
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return inflater.inflate(getItemLayoutRes(), parent, false);
+        return inflater.inflate(getItemLayoutRes(viewType), parent, false);
     }
 }

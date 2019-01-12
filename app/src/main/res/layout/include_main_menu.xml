@@ -1,53 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/menu"
-    android:background="#c3c3c3"
+    android:background="@color/side_menu_bg"
     android:layout_gravity="start"
-    android:orientation="vertical"
     android:layout_width="240dp"
     android:layout_height="match_parent">
-
-    <TextView
-        style="@style/menu_text_item"
-        android:text="@string/history"
-        android:id="@+id/tv_history"/>
-
-    <TextView
-        style="@style/menu_text_item"
-        android:text="@string/setting"
-        android:id="@+id/tv_setting"/>
-
-    <TextView
-        style="@style/menu_text_item"
-        android:text="@string/instrument"
-        android:id="@+id/tv_instrument"/>
-
-    <TextView
-        style="@style/menu_text_item"
-        android:text="@string/clear"
-        android:id="@+id/tv_clear"/>
-
-    <Switch
-        android:padding="5dp"
-        android:textSize="14sp"
-        android:id="@+id/swt_floating"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Floating" />
+        android:layout_height="match_parent">
 
-    <Switch
-        android:padding="5dp"
-        android:textSize="14sp"
-        android:id="@+id/swt_filter_udp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Filter UDP" />
+        <RelativeLayout
+            android:id="@+id/rl_history"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="64dp">
 
-    <Switch
-        android:padding="5dp"
-        android:textSize="14sp"
-        android:id="@+id/swt_crack_tls"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Crack TLS" />
-</LinearLayout>
+            <ImageView
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/sl_ic_history"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                style="@style/white_label"
+                android:textSize="15sp"
+                android:text="@string/history"
+                android:layout_marginLeft="30dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_cache_dir"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="64dp">
+
+            <ImageView
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/sl_ic_cache_dir"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/white_label"
+                android:textSize="15sp"
+                android:text="@string/cache_path"
+                android:layout_marginLeft="30dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tv_cache_dir"
+                style="@style/gray_label"
+                android:layout_marginTop="3dp"
+                android:layout_below="@+id/tv_name"
+                android:layout_alignLeft="@+id/tv_name"
+                android:layout_alignParentLeft="true"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_cache_clear"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="64dp">
+
+            <ImageView
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/sl_ic_cache_clear"
+                android:layout_width="20dp"
+                android:layout_height="20dp" />
+
+            <TextView
+                android:id="@+id/tv_name2"
+                style="@style/white_label"
+                android:textSize="15sp"
+                android:text="@string/clear_history"
+                android:layout_marginLeft="30dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tv_cache_size"
+                style="@style/gray_label"
+                android:layout_marginTop="3dp"
+                android:layout_below="@+id/tv_name2"
+                android:layout_alignLeft="@+id/tv_name2"
+                android:layout_alignParentLeft="true"/>
+
+        </RelativeLayout>
+
+
+        <Switch
+            android:layout_marginTop="10dp"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:id="@+id/swt_floating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/float_window" />
+
+        <Switch
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:id="@+id/swt_filter_udp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_udp" />
+
+        <Switch
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:id="@+id/swt_crack_tls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/crack_ssl" />
+    </LinearLayout>
+</RelativeLayout>

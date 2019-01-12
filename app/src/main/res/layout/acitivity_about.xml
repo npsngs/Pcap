@@ -41,7 +41,7 @@
             android:layout_gravity="center_horizontal"
 
             android:layout_marginTop="50dp"
-            android:src="@drawable/app_icon" />
+            android:src="@mipmap/ic_launcher" />
 
         <TextView
             android:layout_width="match_parent"

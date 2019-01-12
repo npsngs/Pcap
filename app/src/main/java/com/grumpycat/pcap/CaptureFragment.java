@@ -81,7 +81,7 @@ public class CaptureFragment extends BaseFragment {
                 return;
             }
 
-            String dir = Const.DATA_DIR
+            String dir = Const.CACHE_DIR
                     + VpnMonitor.getVpnStartTimeStr()
                     + "/"
                     + connection.hashCode();

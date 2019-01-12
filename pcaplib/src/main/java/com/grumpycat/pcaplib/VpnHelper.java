@@ -1,6 +1,7 @@
 package com.grumpycat.pcaplib;
 
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.grumpycat.pcaplib.data.DataCacheHelper;
@@ -17,7 +18,6 @@ import com.grumpycat.pcaplib.tcp.TCPProxy;
 import com.grumpycat.pcaplib.tcp.TCPProxy2;
 import com.grumpycat.pcaplib.udp.UDPServer;
 import com.grumpycat.pcaplib.util.CommonMethods;
-import com.grumpycat.pcaplib.util.CommonUtil;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.HexStr;
 import com.grumpycat.pcaplib.util.IOUtils;
@@ -203,11 +203,6 @@ public class VpnHelper {
 
 
                 fos.write(ipHeader.mData, ipHeader.mOffset, size);
-
-                DataCacheHelper.saveData(session,
-                        CommonUtil.copyByte(ipHeader.mData, ipHeader.mOffset, size),
-                        size);
-
                 VpnMonitor.addReceiveBytes(size);
             }
         } else {
@@ -283,9 +278,7 @@ public class VpnHelper {
                 session.setProtocol(Const.HTTP);
             }
 
-            DataCacheHelper.saveData(session,
-                    CommonUtil.copyByte(ipHeader.mData, ipHeader.mOffset, size),
-                    size);
+            ipHeader.setSourceIP(VpnMonitor.getLocalIp());
             //转发给本地TCP服务器
             ipHeader.setSourceIP(ipHeader.getDestinationIP());
             ipHeader.setDestinationIP(VpnMonitor.getLocalIp());
@@ -293,12 +286,8 @@ public class VpnHelper {
 
             CommonMethods.ComputeTCPChecksum(ipHeader, tcpHeader);
 
-
             fos.write(ipHeader.mData, ipHeader.mOffset, size);
-
-
             //注意顺序
-            SessionManager.getInstance().addSessionSendBytes(session, tcpDataSize);
             VpnMonitor.addSendBytes(size);
         }
         hasWrite = true;
@@ -313,20 +302,6 @@ public class VpnHelper {
         int offset = ipHeader.getHeaderLength()+tcpHeader.getHeaderLength();
         return "[data:]\n" + convertByte2Hex(ipHeader.mData, offset, data) +"\n[dataStr:]\n"+new String(ipHeader.mData, offset, data);
     }
-
-
-
-    private String convertHexStr(byte[] data, int offset, int len){
-        String s = "";
-        int index = offset;
-        while (index < len){
-            s += HexStr.byte2Hex(data[index]);
-            index++;
-        }
-        return s;
-    }
-
-
 
     private String convertByte2Hex(byte[] data, int offset, int len){
         String s = "";
@@ -349,7 +324,6 @@ public class VpnHelper {
         IOUtils.safeClose(fos);
         IOUtils.safeClose(descriptor);
         IOUtils.safeClose(SessionManager.getInstance());
-        DataCacheHelper.close();
         try {
             //停止TCP代理服务
             if (tcpProxy != null) {
