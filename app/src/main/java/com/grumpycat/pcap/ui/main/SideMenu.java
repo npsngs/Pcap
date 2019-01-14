@@ -43,7 +43,7 @@ public class SideMenu extends UiWidget implements View.OnClickListener,
         swt_crack_tls = findViewById(R.id.swt_crack_tls);
         tv_about = findViewById(R.id.tv_about);
         tv_cache_dir = findViewById(R.id.tv_cache_dir);
-        tv_cache_dir.setText(Const.CACHE_DIR);
+        tv_cache_dir.setText(Const.BASE_DIR);
         tv_about.setText("v"+getVersionName(activity));
     }
 
@@ -63,7 +63,7 @@ public class SideMenu extends UiWidget implements View.OnClickListener,
         swt_filter_udp.setOnCheckedChangeListener(null);
         swt_crack_tls.setOnCheckedChangeListener(null);
 
-        swt_filter_udp.setChecked(AppConfigs.isFilterUdp());
+        swt_filter_udp.setChecked(!AppConfigs.isFilterUdp());
         swt_crack_tls.setChecked(AppConfigs.isCrackTls());
 
         swt_filter_udp.setOnCheckedChangeListener(this);
@@ -95,8 +95,8 @@ public class SideMenu extends UiWidget implements View.OnClickListener,
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()){
             case R.id.swt_filter_udp:
-                VpnController.setIsUdpNeedSave(!isChecked);
-                AppConfigs.setFilterUdp(isChecked);
+                VpnController.setIsUdpNeedSave(isChecked);
+                AppConfigs.setFilterUdp(!isChecked);
                 break;
             case R.id.swt_crack_tls:
                 VpnController.setIsCrackTLS(isChecked);

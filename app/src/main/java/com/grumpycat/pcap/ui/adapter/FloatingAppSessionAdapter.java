@@ -67,7 +67,7 @@ public class FloatingAppSessionAdapter extends BaseAdapter<AppSessions> {
                     tv_name.setText(appInfo.name);
                 }else{
                     iv_icon.setImageResource(R.drawable.sym_def_app_icon);
-                    tv_name.setText(R.string.unknow);
+                    tv_name.setText(R.string.unknown);
                 }
             });
 

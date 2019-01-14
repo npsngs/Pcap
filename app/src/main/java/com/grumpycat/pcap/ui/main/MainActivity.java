@@ -2,6 +2,7 @@ package com.grumpycat.pcap.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -102,6 +103,7 @@ public class MainActivity extends BaseActi implements Toolbar.OnMenuItemClickLis
 
 
     private final int REQUEST_PACKAGE = 1024;
+    private final int REQUEST_VPN =     1023;
     private void gotoSelectAppPage(){
         Intent intent = new Intent(this, AppListActivity.class);
         startActivityForResult(intent, REQUEST_PACKAGE);
@@ -127,12 +129,24 @@ public class MainActivity extends BaseActi implements Toolbar.OnMenuItemClickLis
                        captureList.showMultiApp();
                    }
                    break;
-               case CommonUtil.REQUEST_EXTERNAL_STORAGE:
-                   startVPN();
+               case REQUEST_VPN:
+                   VpnController.startVpn(this);
+                   SessionSet.clear();
+                   startBtn.setIcon(R.drawable.sl_ic_stop_record);
                    break;
            }
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == CommonUtil.REQUEST_EXTERNAL_STORAGE &&
+                CommonUtil.hasPermission(this,
+                "android.permission.WRITE_EXTERNAL_STORAGE")){
+            startVPN();
+        }
     }
 
     @Override
@@ -170,10 +184,11 @@ public class MainActivity extends BaseActi implements Toolbar.OnMenuItemClickLis
 
         Intent intent = VpnController.startVpn(this);
         if (intent != null) {
-            startActivityForResult(intent, 1023);
+            startActivityForResult(intent, REQUEST_VPN);
+        }else{
+            SessionSet.clear();
+            startBtn.setIcon(R.drawable.sl_ic_stop_record);
         }
-        SessionSet.clear();
-        startBtn.setIcon(R.drawable.sl_ic_stop_record);
     }
 
     private VpnMonitor.StatusListener statusListener = new VpnMonitor.StatusListener() {

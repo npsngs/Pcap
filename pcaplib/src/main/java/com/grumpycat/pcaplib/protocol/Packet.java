@@ -352,7 +352,7 @@ public class Packet implements Serializable {
 
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             backingBuffer.position(lastPosition);
         }
@@ -429,10 +429,8 @@ public class Packet implements Serializable {
 
             }
             Log.e(TAG, "TLS Client Hello packet doesn't contains Host field info.");
-            return;
         } else {
             Log.e(TAG, "Bad TLS Client Hello packet.");
-            return;
         }
     }
 
@@ -615,19 +613,18 @@ public class Packet implements Serializable {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("IP4Header{");
-            sb.append("version=").append(version);
-            sb.append(", IHL=").append(IHL);
-            sb.append(", typeOfService=").append(typeOfService);
-            sb.append(", totalLength=").append(totalLength);
-            sb.append(", identificationAndFlagsAndFragmentOffset=").append(identificationAndFlagsAndFragmentOffset);
-            sb.append(", TTL=").append(TTL);
-            sb.append(", protocol=").append(protocolNum).append(":").append(protocol);
-            sb.append(", headerChecksum=").append(headerChecksum);
-            sb.append(", sourceAddress=").append(sourceAddress.getHostAddress());
-            sb.append(", destinationAddress=").append(destinationAddress.getHostAddress());
-            sb.append('}');
-            return sb.toString();
+            String sb = "IP4Header{" + "version=" + version +
+                    ", IHL=" + IHL +
+                    ", typeOfService=" + typeOfService +
+                    ", totalLength=" + totalLength +
+                    ", identificationAndFlagsAndFragmentOffset=" + identificationAndFlagsAndFragmentOffset +
+                    ", TTL=" + TTL +
+                    ", protocol=" + protocolNum + ":" + protocol +
+                    ", headerChecksum=" + headerChecksum +
+                    ", sourceAddress=" + sourceAddress.getHostAddress() +
+                    ", destinationAddress=" + destinationAddress.getHostAddress() +
+                    '}';
+            return sb;
         }
     }
 
@@ -835,13 +832,12 @@ public class Packet implements Serializable {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("UDPHeader{");
-            sb.append("sourcePort=").append(sourcePort);
-            sb.append(", destinationPort=").append(destinationPort);
-            sb.append(", playoffSize=").append(length);
-            sb.append(", checksum=").append(checksum);
-            sb.append('}');
-            return sb.toString();
+            String sb = "UDPHeader{" + "sourcePort=" + sourcePort +
+                    ", destinationPort=" + destinationPort +
+                    ", playoffSize=" + length +
+                    ", checksum=" + checksum +
+                    '}';
+            return sb;
         }
 
         UDPHeader duplicate() {

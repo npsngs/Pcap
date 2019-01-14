@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="45dp"
-    android:layout_height="45dp"
-    android:padding="12dp"
-    android:src="@drawable/sl_float_btn"
-    android:background="@drawable/sp_floating_btn_bg"/>

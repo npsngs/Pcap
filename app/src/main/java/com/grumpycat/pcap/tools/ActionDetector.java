@@ -47,9 +47,9 @@ public class ActionDetector implements View.OnTouchListener{
         return Math.sqrt(dx*dx+dy*dy) < clickThreshold;
     }
 
-    protected void onMove(float dx, float dy){};
+    protected void onMove(float dx, float dy){}
 
-    protected void onClick(){};
+    protected void onClick(){}
 
-    protected void onMoveEnded(){};
+    protected void onMoveEnded(){}
 }

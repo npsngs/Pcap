@@ -15,11 +15,9 @@ import java.util.List;
 public class DataCacheHelper implements Closeable {
     private static String cacheDir;
     public static void reset(String vpnTime){
-        cacheDir = new StringBuilder()
-                .append(Const.CACHE_DIR)
-                .append(vpnTime)
-                .append("/")
-                .toString();
+        cacheDir = Const.CACHE_DIR +
+                vpnTime +
+                "/";
     }
 
     @Override
@@ -97,11 +95,9 @@ public class DataCacheHelper implements Closeable {
     }
 
     public static ParseResult parseSession(String vpnStartTime, int sessionId){
-        String dirPath = new StringBuilder()
-                .append(Const.CACHE_DIR)
-                .append(vpnStartTime)
-                .append("/").append(sessionId)
-                .toString();
+        String dirPath = Const.CACHE_DIR +
+                vpnStartTime +
+                "/" + sessionId;
 
         ParseResult result = new ParseResult();
         List<ParseMeta> ret = new ArrayList<>();

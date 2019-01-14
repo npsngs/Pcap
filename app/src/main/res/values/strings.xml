@@ -1,50 +1,17 @@
 <resources>
 
-    <string name="all">Capture all Packet</string>
-    <string name="ssl">SSL</string>
-    <string name="find">Capture</string>
 
 
     <string name="clear_history">Clear History Data</string>
-    <string name="success_clear_history_data">Success clear history packetData!</string>
     <string name="select_package">select app</string>
 
-    <string name="system">System</string>
-    <string name="unknow">Unknow</string>
-    <string name="capture_data">History Capture Packet</string>
-    <string name="do_you_like_the_app">Do you like the App?</string>
-    <string name="yes">yes</string>
-    <string name="no">No</string>
-    <string name="do_you_want_star">Go to star the project in the Github?</string>
-    <string name="cancel">Cancel</string>
-    <string name="go_to_give_the_issue">Go to show your issue in the Github?</string>
-    <string name="about_app">About NetworkCapture</string>
-    <string name="email_address">Email:821579706@qq.com</string>
-    <string name="qq_address">QQ Group:692721889</string>
-    <string name="github_address">Github:https://github.com/huolizhuminh/NetWorkPacketCapture</string>
-    <string name="body">Body:</string>
-    <string name="head">Head:</string>
-    <string name="clear_current_capture">Include current capture</string>
-    <string name="request_head">Request Head</string>
-    <string name="response_head">Response Head</string>
-    <string name="request_body">Request Body:</string>
-    <string name="response_body">Response Body:</string>
-    <string name="no_data">Data not existed!!</string>
-    <string name="show_udp">Show UDP</string>
-    <string name="save_udp">Save UDP Packet</string>
+    <string name="unknown">Unknown</string>
 
-    <string name="app_name">PCAP</string>
-    <string name="setting">Setting</string>
+    <string name="app_name">Packet Cap</string>
     <string name="history">History</string>
-    <string name="instrument">Instrument</string>
     <string name="select_apps">Select Apps</string>
     <string name="select_all">Select All</string>
     <string name="select">Select</string>
-    <string name="ok">OK</string>
-    <string name="packetData">Data</string>
-    <string name="net_session">Net Sessions</string>
-
-    <string name="cache_path">Cache Path</string>
 
 
     <string name="sort">Sort</string>
@@ -52,10 +19,9 @@
     <string name="clear">Clean</string>
     <string name="all_app">All App</string>
 
-    <string name="float_window">Open Floating Window</string>
     <string name="filter_udp">Filter Udp Packet</string>
     <string name="crack_ssl">Crack SSL</string>
-    <string name="clear_finish">Clear Finished!</string>
+    <string name="clear_finish">Clear Finished</string>
     <string name="vpn_toggle">Vpn Toggle</string>
     <string name="floating_toggle">Floating Toggle</string>
 

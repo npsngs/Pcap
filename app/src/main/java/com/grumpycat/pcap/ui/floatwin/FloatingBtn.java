@@ -157,8 +157,7 @@ public class FloatingBtn {
        ValueAnimator animator = ValueAnimator.ofInt(layoutParams.x, targetX)
                 .setDuration(duration);
         animator.addUpdateListener(animation -> {
-            int x = (int) animation.getAnimatedValue();
-            layoutParams.x = x;
+            layoutParams.x = (int) animation.getAnimatedValue();
             wm.updateViewLayout(btn, layoutParams);
         });
         animator.start();

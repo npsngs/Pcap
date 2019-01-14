@@ -40,7 +40,7 @@ public class FloatingCaptureList {
                 AppManager.asyncLoad(session.getUid(), appInfo->{
                     String appName = appInfo != null
                             ?appInfo.name
-                            :root.getContext().getString(R.string.unknow);
+                            :root.getContext().getString(R.string.unknown);
                     Bundle params = new Bundle();
                     params.putString("name", appName);
                     params.putString("vpnStartTime",StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()));
@@ -60,7 +60,7 @@ public class FloatingCaptureList {
                 AppManager.asyncLoad(uid, appInfo->{
                     String appName = appInfo != null
                             ?appInfo.name
-                            :root.getContext().getString(R.string.unknow);
+                            :root.getContext().getString(R.string.unknown);
                     params.putString("name", appName);
                     next.setParams(params);
                     page.startPage(next);

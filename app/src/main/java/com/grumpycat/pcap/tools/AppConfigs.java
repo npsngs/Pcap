@@ -12,17 +12,12 @@ public class AppConfigs {
         sp = context.getSharedPreferences("APP_CONFIGS", Context.MODE_PRIVATE);
     }
 
-
-    public static boolean isShowFloating(){
-       return sp.getBoolean("is_show_floating", false);
-    }
-
     public static void setShowFloating(boolean showFloating){
         sp.edit().putBoolean("is_show_floating", showFloating).apply();
     }
 
     public static boolean isFilterUdp(){
-        return sp.getBoolean("is_filter_udp", false);
+        return sp.getBoolean("is_filter_udp", true);
     }
 
     public static void setFilterUdp(boolean isFilterUdp){
@@ -30,7 +25,7 @@ public class AppConfigs {
     }
 
     public static boolean isCrackTls(){
-        return sp.getBoolean("is_crack_tls", true);
+        return sp.getBoolean("is_crack_tls", false);
     }
 
     public static void setCrackTls(boolean isCrackTls){

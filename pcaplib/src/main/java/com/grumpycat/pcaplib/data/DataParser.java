@@ -3,7 +3,6 @@ package com.grumpycat.pcaplib.data;
 import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

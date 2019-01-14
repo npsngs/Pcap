@@ -34,7 +34,7 @@ public class SessionListActivity extends BaseActi {
                 getToolbar().setTitle(appInfo.name);
             });
         }else{
-            getToolbar().setTitle(R.string.unknow);
+            getToolbar().setTitle(R.string.unknown);
         }
 
         captureList = new CaptureList(this);

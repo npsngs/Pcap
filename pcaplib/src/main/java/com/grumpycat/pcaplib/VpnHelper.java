@@ -1,7 +1,6 @@
 package com.grumpycat.pcaplib;
 
 import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.grumpycat.pcaplib.data.DataCacheHelper;
@@ -15,7 +14,6 @@ import com.grumpycat.pcaplib.protocol.TCPHeader;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
 import com.grumpycat.pcaplib.tcp.TCPProxy;
-import com.grumpycat.pcaplib.tcp.TCPProxy2;
 import com.grumpycat.pcaplib.udp.UDPServer;
 import com.grumpycat.pcaplib.util.CommonMethods;
 import com.grumpycat.pcaplib.util.Const;
@@ -51,7 +49,6 @@ public class VpnHelper {
     private PortService portService;
     private NetProxy tcpProxy;
     private UDPServer udpServer;
-    private final boolean isUseNetty = true;
     private void init(){
         buffer = new byte[Const.MUTE_SIZE];
         ipHeader = new IPHeader(buffer, 0);
@@ -75,11 +72,7 @@ public class VpnHelper {
             udpQueue = new ConcurrentLinkedQueue<>();
 
             //启动TCP代理服务
-            if (isUseNetty) {
-                tcpProxy = new TCPProxy2();
-            } else {
                 tcpProxy = new TCPProxy();
-            }
             tcpProxy.start();
             udpServer = new UDPServer(service, udpQueue);
             udpServer.start();
@@ -225,33 +218,9 @@ public class VpnHelper {
             }else{
                 session.lastActiveTime = System.currentTimeMillis();
             }
-            session.sendPacket++; //注意顺序
+            session.sendPacket++;
             int tcpDataSize = ipHeader.getDataLength() - tcpHeader.getHeaderLength();
-            //丢弃tcp握手的第二个ACK报文。因为客户端发数据的时候也会带上ACK，这样可以在服务器Accept之前分析出HOST信息。
 
-            /*if (session.sendPacket == 2 && tcpDataSize == 0) {
-                if(Const.LOG_ON) {
-                    Log.e("send2Proxy", ipHeader.toString()
-                            + "size:" + size
-                            + " totalS:"
-                            + ipHeader.getTotalLength()
-                            + "THLen:" + tcpHeader.getHeaderLength()
-                            + "TCP:[" + tcpHeader.toString() + "]  [Discarded]");
-                }
-                return false;
-            }else if(Const.LOG_ON){
-                Log.e("send2Proxy", ipHeader.toString()
-                        + "size:"+size
-                        + " totalS:"
-                        +ipHeader.getTotalLength()
-                        + "THLen:"+tcpHeader.getHeaderLength()
-                        + "TCP:["+tcpHeader.toString()+"]"
-                        + printData(ipHeader, tcpHeader));
-            }
-*/
-
-
-            //分析数据，找到host
             if (session.sendByte == 0 && tcpDataSize > 10) {
                 int dataOffset = tcpHeader.mOffset + tcpHeader.getHeaderLength();
                 HttpHeader httpHeader = HttpParser.parseHttpRequestHeader(
@@ -279,7 +248,7 @@ public class VpnHelper {
             }
 
             ipHeader.setSourceIP(VpnMonitor.getLocalIp());
-            //转发给本地TCP服务器
+
             ipHeader.setSourceIP(ipHeader.getDestinationIP());
             ipHeader.setDestinationIP(VpnMonitor.getLocalIp());
             tcpHeader.setDestinationPort(tcpProxy.getPort());
@@ -304,19 +273,19 @@ public class VpnHelper {
     }
 
     private String convertByte2Hex(byte[] data, int offset, int len){
-        String s = "";
+        StringBuilder s = new StringBuilder();
         int index = offset;
         int row = 0;
         while (index < len){
-            s += HexStr.byte2Hex(data[index]);
+            s.append(HexStr.byte2Hex(data[index]));
             index++;
             row++;
             if (row > 15){
-                s += "\n";
+                s.append("\n");
                 row = 0;
             }
         }
-        return s;
+        return s.toString();
     }
 
     private void close(){

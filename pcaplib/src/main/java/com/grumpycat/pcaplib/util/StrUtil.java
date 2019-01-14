@@ -26,11 +26,10 @@ public class StrUtil {
 
     public static int str2Ip(String ip) {
         String[] str = ip.split("\\.");
-        int r = (Integer.parseInt(str[0]) << 24)
+        return (Integer.parseInt(str[0]) << 24)
                 | (Integer.parseInt(str[1]) << 16)
                 | (Integer.parseInt(str[2]) << 8)
                 | (Integer.parseInt(str[3]));
-        return r;
     }
 
     public static String convertHexStr(byte[] data, int offset, int len){

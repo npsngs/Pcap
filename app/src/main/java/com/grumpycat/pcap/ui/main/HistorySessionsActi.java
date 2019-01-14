@@ -46,7 +46,7 @@ public class HistorySessionsActi extends BaseActi {
                 AppManager.asyncLoad(session.getUid(), appInfo->{
                     String appName = appInfo != null
                             ?appInfo.name
-                            :HistorySessionsActi.this.getString(R.string.unknow);
+                            :HistorySessionsActi.this.getString(R.string.unknown);
                     SessionDetailActi.goLaunch(HistorySessionsActi.this,
                             appName,
                             session.getProtocol(),

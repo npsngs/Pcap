@@ -19,9 +19,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseHolder<T>>
     public void setData(List<T> dataList){
         data.clear();
         if (dataList != null && dataList.size() > 0) {
-            for (T t : dataList) {
-                data.add(t);
-            }
+            data.addAll(dataList);
         }
         notifyDataSetChanged();
     }

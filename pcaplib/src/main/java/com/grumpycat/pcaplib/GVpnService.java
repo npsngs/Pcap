@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-
-import com.grumpycat.pcaplib.data.DataManager;
-import com.grumpycat.pcaplib.util.CommonMethods;
 import com.grumpycat.pcaplib.util.Const;
 
 import java.util.List;
@@ -29,7 +26,6 @@ public class GVpnService extends VpnService {
         super.onCreate();
         vpnHelper = new VpnHelper(this);
         VpnMonitor.setVpnService(this);
-        DataManager.getInstance().launch();
     }
 
     @Override
@@ -58,7 +54,6 @@ public class GVpnService extends VpnService {
 
         VpnMonitor.setLocalIp(Const.VPN_IP);
         VpnMonitor.setVpnStartTime(System.currentTimeMillis());
-        DataManager.getInstance().setCurDir(VpnMonitor.getVpnStartTimeStr());
         builder.addAddress("10.8.0.2", 32);
         builder.addRoute(VPN_ROUTE, 0);
 

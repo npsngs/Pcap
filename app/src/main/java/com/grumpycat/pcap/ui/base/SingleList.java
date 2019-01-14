@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.grumpycat.pcap.R;
-import com.grumpycat.pcap.tools.Util;
 
 /**
  * Created by cc.he on 2018/12/6

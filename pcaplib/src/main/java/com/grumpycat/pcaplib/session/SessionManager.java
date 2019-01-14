@@ -5,16 +5,12 @@ import android.content.Context;
 
 import com.grumpycat.pcaplib.VpnController;
 import com.grumpycat.pcaplib.VpnMonitor;
-import com.grumpycat.pcaplib.data.FileCache;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.IOUtils;
 import com.grumpycat.pcaplib.util.ThreadPool;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +26,6 @@ public class SessionManager implements Closeable{
     public static SessionManager getInstance(){
         return instance;
     }
-    private int maxSessionCount = Const.SESSION_MAX_COUNT;
-    private long maxSessionTimeout = Const.SESSION_MAX_TIMEOUT;
     private SessionDB sessionDB;
     private volatile SessionObserver observer;
     private volatile boolean isClosed;
@@ -70,7 +64,7 @@ public class SessionManager implements Closeable{
             return;
         }
         saveQueue.add(session);
-        if(observer != null && !isFilter(session)){
+        if(observer != null && !isNeedFilter(session)){
             observer.onSessionChange(session, SessionObserver.EVENT_CLOSE);
         }
 
@@ -82,45 +76,31 @@ public class SessionManager implements Closeable{
     private void saveToDB(){
         ThreadPool.execute(() -> {
             List<NetSession> lt = new ArrayList<>(saveQueue.size());
-            Iterator<NetSession> iterator = saveQueue.iterator();
-            while (iterator.hasNext()){
-                lt.add(iterator.next());
-            }
+            lt.addAll(saveQueue);
             saveQueue.clear();
             sessionDB.insertAll(lt);
         });
     }
 
     /*清除过期的会话*/
-    public void clearExpiredSessions() {
+    private void clearExpiredSessions() {
         long now = System.currentTimeMillis();
         Set<Map.Entry<Integer, NetSession>> entries = sessions.entrySet();
         Iterator<Map.Entry<Integer, NetSession>> iterator = entries.iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, NetSession> entry = iterator.next();
             NetSession session = entry.getValue();
-            if (now - session.lastActiveTime > maxSessionTimeout) {
+            if (now - session.lastActiveTime > Const.SESSION_MAX_TIMEOUT) {
                 iterator.remove();
             }
         }
-    }
-
-    public List<NetSession> getAllSession() {
-        ArrayList<NetSession> natSessions = new ArrayList<>();
-        Set<Map.Entry<Integer, NetSession>> entries = sessions.entrySet();
-        Iterator<Map.Entry<Integer, NetSession>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, NetSession> next = iterator.next();
-            natSessions.add(next.getValue());
-        }
-        return natSessions;
     }
 
 
     public void addSessionReadBytes(NetSession session, int byteCount){
         session.receiveByte += byteCount;
         session.receivePacket++;
-        if(observer != null && !isFilter(session)){
+        if(observer != null && !isNeedFilter(session)){
             observer.onSessionChange(session, SessionObserver.EVENT_RECV);
         }
     }
@@ -128,7 +108,7 @@ public class SessionManager implements Closeable{
     public void addSessionSendBytes(NetSession session, int byteCount){
         session.sendByte += byteCount;
         session.sendPacket++;
-        if(observer != null  && !isFilter(session)){
+        if(observer != null  && !isNeedFilter(session)){
             observer.onSessionChange(session, SessionObserver.EVENT_SEND);
         }
     }
@@ -140,33 +120,8 @@ public class SessionManager implements Closeable{
 
 
 
-    public List<NetSession> loadAllSession() {
-        String lastVpnStartTimeFormat = VpnMonitor.getVpnStartTimeStr();
-        try {
-            File file = new File(Const.CONFIG_DIR + lastVpnStartTimeFormat);
-            FileCache aCache = FileCache.get(file);
-            String[] list = file.list();
-            ArrayList<NetSession> baseNetSessions = new ArrayList<>();
-            if (list != null) {
-                for (String fileName : list) {
-                    NetSession netConnection = (NetSession) aCache.getAsObject(fileName);
-                    baseNetSessions.add(netConnection);
-                }
-            }
-
-            Collections.sort(baseNetSessions, new NetSession.SessionComparator());
-            return baseNetSessions;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-
-
     public NetSession createSession(short portKey, int remoteIP, short remotePort, int protocol) {
-        if (sessions.size() > maxSessionCount) {
+        if (sessions.size() > Const.SESSION_MAX_COUNT) {
             clearExpiredSessions();
         }
 
@@ -186,22 +141,18 @@ public class SessionManager implements Closeable{
             moveToSaveQueue(lastSession);
         }
 
-        if(observer != null && !isFilter(session)){
+        if(observer != null && !isNeedFilter(session)){
             observer.onSessionChange(session, SessionObserver.EVENT_CREATE);
         }
         return session;
     }
 
-    public boolean isFilter(NetSession session){
+    private boolean isNeedFilter(NetSession session){
         if(!VpnController.isUdpNeedSave()
                 && session.isUdp()){
             return true;
         }
-        if(!session.hasData()){
-            return true;
-        }
-
-        return false;
+        return !session.hasData();
     }
 
     public void clearHistory(){
@@ -210,7 +161,7 @@ public class SessionManager implements Closeable{
     }
 
     @Override
-    public void close() throws IOException {
+    public void close(){
         isClosed = true;
         saveToDB();
     }

@@ -36,19 +36,17 @@ public class CommonMethods {
 
 	public static int ipStringToInt(String ip) {
 		String[] arrayStrings = ip.split("\\.");
-		int r = (Integer.parseInt(arrayStrings[0]) << 24)
+		return (Integer.parseInt(arrayStrings[0]) << 24)
 				| (Integer.parseInt(arrayStrings[1]) << 16)
 				| (Integer.parseInt(arrayStrings[2]) << 8)
 				| (Integer.parseInt(arrayStrings[3]));
-		return r;
 	}
 
 	public static int readInt(byte[] data, int offset) {
-		int r = ((data[offset] & 0xFF) << 24)
+		return ((data[offset] & 0xFF) << 24)
 				| ((data[offset + 1] & 0xFF) << 16)
 				| ((data[offset + 2] & 0xFF) << 8)
 				| (data[offset + 3] & 0xFF);
-		return r;
 	}
 
 	public static short readShort(byte[] data, int offset) {

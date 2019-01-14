@@ -2,7 +2,6 @@ package com.grumpycat.pcaplib.util;
 
 import java.io.Closeable;
 import java.io.File;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Created by cc.he on 2018/11/13

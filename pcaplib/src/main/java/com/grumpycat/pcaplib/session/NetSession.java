@@ -2,15 +2,12 @@ package com.grumpycat.pcaplib.session;
 
 import android.text.TextUtils;
 
-import com.grumpycat.pcaplib.data.DataMeta;
 import com.grumpycat.pcaplib.protocol.HttpHeader;
 import com.grumpycat.pcaplib.util.Const;
 import com.grumpycat.pcaplib.util.StrUtil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Created by cc.he on 2018/11/14
@@ -33,7 +30,6 @@ public class NetSession implements Serializable , Cloneable{
     private int hashCode = 0;
 
     private transient int serialNumber;
-    private transient List<DataMeta> dataMetas;
 
     public NetSession(int protocol) {
         this.protocol = protocol;
@@ -120,17 +116,6 @@ public class NetSession implements Serializable , Cloneable{
 
     public void setVpnStartTime(long vpnStartTime) {
         this.vpnStartTime = vpnStartTime;
-    }
-
-    public List<DataMeta> getDataMetas() {
-        return dataMetas;
-    }
-
-    public void addDataMeta(DataMeta dataMeta){
-        if(dataMetas == null){
-            dataMetas = new ArrayList<>();
-        }
-        dataMetas.add(dataMeta);
     }
 
     public String getExtras(){

@@ -13,10 +13,8 @@ import java.util.List;
 public class Config {
     public static final long MAX_LOAD = 1024*8;
 
-    private static Context context;
     private static SharedPreferences sp;
     public static void init(Context context){
-        Config.context = context.getApplicationContext();
         sp = context.getSharedPreferences("Configs", Context.MODE_PRIVATE);
     }
 
@@ -57,12 +55,12 @@ public class Config {
     public static void saveSelectApps(int[] uids){
         selectedUids = uids;
         if(selectedUids != null){
-            String saveStr = "";
+            StringBuilder saveStr = new StringBuilder();
             for(int uid:uids){
-                saveStr += uid;
-                saveStr += ",";
+                saveStr.append(uid);
+                saveStr.append(",");
             }
-            sp.edit().putString("select_uid", saveStr).apply();
+            sp.edit().putString("select_uid", saveStr.toString()).apply();
         }else{
             sp.edit().putString("select_uid", null).apply();
         }

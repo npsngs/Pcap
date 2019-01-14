@@ -30,7 +30,6 @@ public class VpnMonitor {
     private static String vpnStartTimeStr;
     private static StatusListener statusListener;
     private static VpnService vpnService;
-    private static Context context;
     private static int tcpProxyPort;
     private static boolean isSingleApp;
     private static int singleAppUid;
@@ -135,11 +134,6 @@ public class VpnMonitor {
 
     public static void setVpnService(VpnService vpnService) {
         VpnMonitor.vpnService = vpnService;
-        if(vpnService != null){
-            context = vpnService.getApplicationContext();
-        }else{
-            context = null;
-        }
     }
 
     public static boolean protect(Socket socket){
@@ -150,7 +144,7 @@ public class VpnMonitor {
     }
 
     public static Context getContext() {
-        return context;
+        return vpnService.getApplicationContext();
     }
     private static SSLContext sslContext;
     private static SSLContext createSslContext() throws Exception {
@@ -161,7 +155,7 @@ public class VpnMonitor {
         String type = KeyStore.getDefaultType();
         KeyStore ks = KeyStore.getInstance(type);
         //加载keytool 生成的文件
-        InputStream is = context.getResources().getAssets().open(file);
+        InputStream is = vpnService.getResources().getAssets().open(file);
         ks.load(is, passArray);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(ks, passArray);
@@ -172,7 +166,7 @@ public class VpnMonitor {
 
 
     public static SSLEngine createSslEngine(boolean isClientMode) throws Exception{
-        if(sslContext == null && context != null){
+        if(sslContext == null && vpnService != null){
             sslContext = createSslContext();
         }
         SSLEngine sslEngine = sslContext.createSSLEngine();

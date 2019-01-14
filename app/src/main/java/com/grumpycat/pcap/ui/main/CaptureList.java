@@ -40,7 +40,7 @@ public class CaptureList extends UiWidget{
                 AppManager.asyncLoad(session.getUid(), appInfo -> {
                     String appName = appInfo != null
                             ?appInfo.name
-                            :activity.getString(R.string.unknow);
+                            :activity.getString(R.string.unknown);
                     SessionDetailActi.goLaunch(getActivity(),
                             appName,
                             session.getProtocol(),

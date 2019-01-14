@@ -1,9 +1,0 @@
-<resources>
-    <!--Charger Settings-->
-    <string-array name="tabs">
-        <item>Capture</item>
-        <item>History</item>
-        <item>Setting</item>
-    </string-array>
-
-</resources>
