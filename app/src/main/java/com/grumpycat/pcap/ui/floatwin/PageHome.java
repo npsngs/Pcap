@@ -94,6 +94,10 @@ public class PageHome {
         pageTitle.setRightBtn(resId, num);
     }
 
+    public void hideRightBtns(){
+        pageTitle.hideRightBtns();
+    }
+
     public void setTitleStr(int resId) {
         pageTitle.setTitleStr(resId);
     }
@@ -119,6 +123,7 @@ public class PageHome {
         container.addView(view);
         nextPage.onStart();
         if(from != null){
+            from.getPageRoot().setVisibility(View.INVISIBLE);
             from.onStop();
         }
         pages.add(nextPage);
@@ -138,6 +143,7 @@ public class PageHome {
             exitPage.onExit();
         }
         PageUnit startPage = pages.get(index-1);
+        startPage.getPageRoot().setVisibility(View.VISIBLE);
         startPage.onStart();
     }
 
@@ -173,7 +179,7 @@ public class PageHome {
             // 将悬浮窗控件添加到WindowManager
             wm.addView(root, layoutParams);
 
-            goNextPage(null, new SessionsPage(this));
+            goNextPage(null, new MainPage(this));
         }else{
             root.setVisibility(View.VISIBLE);
             getTopPage().onStart();
@@ -186,12 +192,25 @@ public class PageHome {
         floatingBtn.show();
     }
 
+
+    public void setVisibility(int visibility) {
+        if(root != null){
+            root.setVisibility(visibility);
+        }
+    }
+
     public void close(){
         getTopPage().onStop();
         wm.removeView(root);
         wm = null;
         root = null;
         service = null;
+    }
+
+    public void runOnUiThread(Runnable r){
+        if(root != null){
+            root.post(r);
+        }
     }
 
     public Service getService() {

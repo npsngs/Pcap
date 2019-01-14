@@ -3,12 +3,14 @@ package com.grumpycat.pcaplib;
 import android.content.Context;
 import android.net.VpnService;
 
+import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.util.StrUtil;
 
 import java.io.InputStream;
 import java.net.Socket;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -80,13 +82,22 @@ public class VpnMonitor {
     }
 
     public static void setAllowUids(int[] uids) {
-        VpnMonitor.allowPackages = AppManager.queryPackages(uids);
-        if(allowPackages != null && allowPackages.size() == 1){
-            singleAppUid = uids[0];
-            isSingleApp = true;
-        }else{
-            isSingleApp = false;
-        }
+        AppManager.asyncLoad(uids, ret->{
+            if(ret != null && ret.size() > 0){
+                VpnMonitor.allowPackages = new ArrayList<>(ret.size());
+                for(AppInfo app:ret){
+                    VpnMonitor.allowPackages.add(app.pkgName);
+                }
+            }
+
+            if(allowPackages != null && allowPackages.size() == 1){
+                singleAppUid = uids[0];
+                isSingleApp = true;
+            }else{
+                isSingleApp = false;
+            }
+        });
+
     }
 
     public static int getLocalIp() {

@@ -1,5 +1,7 @@
 package com.grumpycat.pcap.ui.floatwin;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 
@@ -9,8 +11,17 @@ import android.view.View;
 public abstract class PageUnit {
     private View pageRoot;
     protected PageHome home;
+    private Bundle params;
     PageUnit(PageHome home) {
         this.home = home;
+    }
+
+    public void setParams(Bundle params) {
+        this.params = params;
+    }
+
+    public Bundle getParams() {
+        return params;
     }
 
     public View getPageRoot() {
@@ -48,6 +59,11 @@ public abstract class PageUnit {
         home.setRightBtn(resId, num);
     }
 
+    public void hideRightBtns(){
+        home.hideRightBtns();
+    }
+
+
     public void setTitleStr(int resId) {
         home.setTitleStr(resId);
     }
@@ -56,7 +72,16 @@ public abstract class PageUnit {
         home.setTitleStr(str);
     }
 
-    public void goNextPage(PageUnit nextPage){
+    public void runOnUiThread(Runnable r) {
+        home.runOnUiThread(r);
+    }
+
+    protected Context getContext(){
+       return home.getService();
+    }
+
+    public void startPage(PageUnit nextPage){
         home.goNextPage(this, nextPage);
     }
 }
+

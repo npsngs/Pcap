@@ -21,6 +21,7 @@ import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -44,17 +45,36 @@ public class AppListActivity extends BaseActi implements Toolbar.OnMenuItemClick
                 0xff787878);
         appListAdapter = new AppListAdapter();
         singleList.setAdapter(appListAdapter);
-        if(AppManager.isFinishLoad()){
-            appListAdapter.setData(AppManager.getNetApps());
+        showProgressBar();
+        AppManager.asyncLoadAll(ret->{
+            hideProgressBar();
+            appListAdapter.setData(filter(ret));
             selectRecords = new boolean[appListAdapter.getItemCount()];
-        }else{
-            showProgressBar();
-            AppManager.setFinishListener(() -> {
-                hideProgressBar();
-                appListAdapter.setData(AppManager.getNetApps());
-                selectRecords = new boolean[appListAdapter.getItemCount()];
-            });
+        });
+    }
+
+    private List<AppInfo> filter(List<AppInfo> apps){
+        if(apps == null || apps.size() < 1) {
+            return null;
         }
+
+        List<AppInfo> app = new ArrayList<>();
+        for(AppInfo item:apps){
+            if(item.hasPermission){
+                app.add(item);
+            }
+        }
+
+        Collections.sort(app , (o1, o2) -> {
+            if (o1.isSystem && !o2.isSystem){
+                return 1;
+            }else if(!o1.isSystem && o2.isSystem){
+                return -1;
+            }
+            return o1.name.compareTo(o2.name);
+        });
+
+        return app;
     }
 
 

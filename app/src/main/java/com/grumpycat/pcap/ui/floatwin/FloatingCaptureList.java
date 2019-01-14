@@ -1,7 +1,9 @@
 package com.grumpycat.pcap.ui.floatwin;
 
+import android.os.Bundle;
 import android.view.View;
 
+import com.grumpycat.pcap.R;
 import com.grumpycat.pcap.model.AppSessions;
 import com.grumpycat.pcap.model.SessionListener;
 import com.grumpycat.pcap.model.SessionSet;
@@ -11,8 +13,10 @@ import com.grumpycat.pcap.ui.adapter.FloatingAppSessionAdapter;
 import com.grumpycat.pcap.ui.adapter.FloatingSessionsAdapter;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.SingleList;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.session.SessionManager;
+import com.grumpycat.pcaplib.util.StrUtil;
 
 /**
  * Created by cc.he on 2018/11/27
@@ -23,8 +27,9 @@ public class FloatingCaptureList {
     private FloatingAppSessionAdapter appSessionAdapter;
     private BaseAdapter adapter;
     private SingleList singleList;
-    private PageHome home;
-    public FloatingCaptureList(View root, PageHome home) {
+    private PageUnit page;
+    public FloatingCaptureList(View root, PageUnit page) {
+        this.page = page;
         singleList = new SingleList(root);
         singleList.showDivider(
                 Util.dp2px(root.getContext(), 0.5f),0,
@@ -32,21 +37,34 @@ public class FloatingCaptureList {
         captureAdapter = new FloatingSessionsAdapter(){
             @Override
             protected void onJump(NetSession session) {
-                /*AppInfo appInfo = AppManager.getApp(session.getUid());
-                String appName = appInfo != null
-                        ?appInfo.name
-                        :root.getContext().getString(R.string.unknow);
-                SessionDetailActi.goLaunch(root.getContext(),
-                        appName,
-                        session.getProtocol(),
-                        StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()),
-                        session.hashCode());*/
+                AppManager.asyncLoad(session.getUid(), appInfo->{
+                    String appName = appInfo != null
+                            ?appInfo.name
+                            :root.getContext().getString(R.string.unknow);
+                    Bundle params = new Bundle();
+                    params.putString("name", appName);
+                    params.putString("vpnStartTime",StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()));
+                    params.putInt("sessionId", session.hashCode());
+                    PageUnit next = new DetailPage(page.home);
+                    next.setParams(params);
+                    page.startPage(next);
+                });
             }
         };
         appSessionAdapter = new FloatingAppSessionAdapter(){
             @Override
             protected void onJump(int uid) {
-                //SessionListActivity.gotoActi(getActivity(), uid);
+                PageUnit next = new SessionsPage(page.home);
+                Bundle params = new Bundle();
+                params.putInt("uid", uid);
+                AppManager.asyncLoad(uid, appInfo->{
+                    String appName = appInfo != null
+                            ?appInfo.name
+                            :root.getContext().getString(R.string.unknow);
+                    params.putString("name", appName);
+                    next.setParams(params);
+                    page.startPage(next);
+                });
             }
         };
 
@@ -98,7 +116,7 @@ public class FloatingCaptureList {
     private SessionListener sessionListener = new SessionListener() {
         @Override
         public void onUpdate(NetSession session) {
-            if(session.getUid() != FloatingCaptureList.this.uid){
+            if(uid > 0 && session.getUid() != uid){
                 return;
             }
             int sn = session.getSerialNumber();

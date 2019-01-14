@@ -8,10 +8,8 @@ import android.widget.TextView;
 
 import com.grumpycat.pcap.R;
 import com.grumpycat.pcap.tools.Util;
-import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcap.ui.base.UiWidget;
-import com.grumpycat.pcaplib.VpnMonitor;
 
 /**
  * Created by cc.he on 2018/11/27
@@ -36,18 +34,18 @@ public class AppInfoBar extends UiWidget{
             ll_icons.setVisibility(View.GONE);
         }else{
             if(uids.length == 1){
-                AppInfo appInfo = AppManager.getApp(uids[0]);
-                iv_icon.setImageDrawable(appInfo.icon);
-                tv_app_name.setText(appInfo.name);
-                ll_icons.setVisibility(View.GONE);
+                AppManager.asyncLoad(uids[0], appInfo -> {
+                    iv_icon.setImageDrawable(appInfo.icon);
+                    tv_app_name.setText(appInfo.name);
+                    ll_icons.setVisibility(View.GONE);
+                });
             }else{
                 if(uids.length > 5){
                     tv_app_name.setText("...");
                 }else{
                     tv_app_name.setText("");
                 }
-                AppInfo appInfo = AppManager.getApp(uids[0]);
-                iv_icon.setImageDrawable(appInfo.icon);
+                AppManager.asyncLoad(uids[0], appInfo -> iv_icon.setImageDrawable(appInfo.icon));
                 ll_icons.setVisibility(View.VISIBLE);
                 ll_icons.removeAllViews();
                 for(int i = 1;i<5 && i<uids.length ;i++){
@@ -56,9 +54,11 @@ public class AppInfoBar extends UiWidget{
                             Util.dp2px(getActivity(), 20f),
                             Util.dp2px(getActivity(), 20f));
                     lp.leftMargin = Util.dp2px(getActivity(), 6f);
-                    appInfo = AppManager.getApp(uids[i]);
-                    iv.setImageDrawable(appInfo.icon);
-                    ll_icons.addView(iv, lp);
+
+                    AppManager.asyncLoad(uids[i], appInfo ->{
+                        iv.setImageDrawable(appInfo.icon);
+                        ll_icons.addView(iv, lp);
+                    });
                 }
             }
         }

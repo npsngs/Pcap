@@ -1,9 +1,6 @@
 package com.grumpycat.pcap.model;
 
 import android.util.SparseArray;
-
-import com.grumpycat.pcaplib.appinfo.AppInfo;
-import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.session.NetSession;
 
 /**
@@ -11,7 +8,6 @@ import com.grumpycat.pcaplib.session.NetSession;
  */
 public class AppSessions {
     private int uid;
-    private AppInfo appInfo;
     private int sendBytes;
     private int recvBytes;
     private int sendPackets;
@@ -73,7 +69,6 @@ public class AppSessions {
 
     public void setUid(int uid) {
         this.uid = uid;
-        appInfo = AppManager.getApp(uid);
     }
 
     public NetSession get(int id){
@@ -98,10 +93,6 @@ public class AppSessions {
 
     public void setSerialNumber(int serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    public AppInfo getAppInfo() {
-        return appInfo;
     }
 
     public int getSessionCount() {

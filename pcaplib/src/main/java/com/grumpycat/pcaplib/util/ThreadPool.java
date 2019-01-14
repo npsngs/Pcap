@@ -1,4 +1,7 @@
 package com.grumpycat.pcaplib.util;
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +10,7 @@ public class ThreadPool {
     private final ScheduledExecutorService executor;
     private final ScheduledExecutorService saveCacheExecutor;
     private final ScheduledExecutorService uiExecutor;
+    private final Handler uiHandler;
     private static class InnerClass {
         static ThreadPool instance = new ThreadPool();
     }
@@ -29,6 +33,7 @@ public class ThreadPool {
             return thread;
         });
 
+        uiHandler = new Handler(Looper.getMainLooper());
     }
     public static void execute(Runnable runnable){
         InnerClass.instance.executor.execute(runnable);
@@ -44,5 +49,9 @@ public class ThreadPool {
 
     public static void runUIWorker(Runnable runnable){
         InnerClass.instance.uiExecutor.execute(runnable);
+    }
+
+    public static void runOnUiThread(Runnable runnable){
+        InnerClass.instance.uiHandler.post(runnable);
     }
 }

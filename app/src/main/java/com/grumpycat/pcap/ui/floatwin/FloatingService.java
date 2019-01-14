@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 /**
  * Created by cc.he on 2018/11/29
@@ -21,6 +22,20 @@ public class FloatingService extends Service {
         init();
         show();
     }
+    private static final int CMD_NOP = 0;
+    private static final int CMD_SHOW_PAGE = 1;
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int cmd = intent.getIntExtra("cmd", CMD_NOP);
+        switch (cmd){
+            case CMD_SHOW_PAGE:
+                floatingPage.setVisibility(View.VISIBLE);
+                break;
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+
 
     private void init(){
         floatingPage = new PageHome(this);
@@ -65,6 +80,12 @@ public class FloatingService extends Service {
         } else {
             activity.startService(new Intent(activity, FloatingService.class));
         }
+    }
+
+    public static void setVisible(Activity from){
+        Intent intent = new Intent(from, FloatingService.class);
+        intent.putExtra("cmd", CMD_SHOW_PAGE);
+        from.startService(intent);
     }
 
     public static void closeFloatingWindow(Activity activity){

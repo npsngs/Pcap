@@ -48,15 +48,16 @@ public class MainActivity extends BaseActi implements Toolbar.OnMenuItemClickLis
         dl = findViewById(R.id.dl);
         menu = findViewById(R.id.menu);
         sideMenu = new SideMenu(this);
-        if(AppManager.isFinishLoad()){
-            loadConfigs();
-        }else{
-            showProgressBar();
-            AppManager.asyncLoadAppInfo(this, () -> loadConfigs());
-        }
+        AppManager.init(this);
+        loadConfigs();
         FloatingService.closeFloatingWindow(this);
         VpnMonitor.setStatusListener(statusListener);
         SessionSet.startObserve();
+        if (VpnMonitor.isVpnRunning()) {
+            startBtn.setIcon(R.drawable.sl_ic_stop_record);
+        }else{
+            startBtn.setIcon(R.drawable.sl_ic_start_record);
+        }
     }
 
     private void toggleMenu(){

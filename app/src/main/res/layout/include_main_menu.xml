@@ -3,6 +3,7 @@
     android:id="@+id/menu"
     android:background="@color/side_menu_bg"
     android:layout_gravity="start"
+    android:paddingTop="10dp"
     android:layout_width="240dp"
     android:layout_height="match_parent">
     <LinearLayout
@@ -14,8 +15,10 @@
             android:id="@+id/rl_history"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             android:layout_width="match_parent"
-            android:layout_height="64dp">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:layout_alignParentLeft="true"
@@ -37,46 +40,13 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/rl_cache_dir"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="64dp">
-
-            <ImageView
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/sl_ic_cache_dir"
-                android:layout_width="20dp"
-                android:layout_height="20dp" />
-
-            <TextView
-                android:id="@+id/tv_name"
-                style="@style/white_label"
-                android:textSize="15sp"
-                android:text="@string/cache_path"
-                android:layout_marginLeft="30dp"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/tv_cache_dir"
-                style="@style/gray_label"
-                android:layout_marginTop="3dp"
-                android:layout_below="@+id/tv_name"
-                android:layout_alignLeft="@+id/tv_name"
-                android:layout_alignParentLeft="true"/>
-
-        </RelativeLayout>
-
-        <RelativeLayout
             android:id="@+id/rl_cache_clear"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             android:layout_width="match_parent"
-            android:layout_height="64dp">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:layout_alignParentLeft="true"
@@ -86,7 +56,7 @@
                 android:layout_height="20dp" />
 
             <TextView
-                android:id="@+id/tv_name2"
+                android:id="@+id/tv_name"
                 style="@style/white_label"
                 android:textSize="15sp"
                 android:text="@string/clear_history"
@@ -97,26 +67,19 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:id="@+id/tv_cache_size"
+                android:id="@+id/tv_cache_dir"
                 style="@style/gray_label"
-                android:layout_marginTop="3dp"
-                android:layout_below="@+id/tv_name2"
-                android:layout_alignLeft="@+id/tv_name2"
-                android:layout_alignParentLeft="true"/>
+                android:textSize="10sp"
+                android:textColor="@color/dark_gray_text"
+                android:layout_marginTop="12dp"
+                android:layout_below="@+id/tv_name"
+                android:layout_alignLeft="@+id/tv_name"/>
 
         </RelativeLayout>
 
 
         <Switch
             android:layout_marginTop="10dp"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:id="@+id/swt_floating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/float_window" />
-
-        <Switch
             android:padding="8dp"
             android:textSize="14sp"
             android:id="@+id/swt_filter_udp"
@@ -132,4 +95,14 @@
             android:layout_height="wrap_content"
             android:text="@string/crack_ssl" />
     </LinearLayout>
+
+    <TextView
+        android:padding="8dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/tv_about"
+        android:textColor="@color/dark_gray_text"
+        android:textSize="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

@@ -69,6 +69,12 @@ public abstract class PageTitle implements View.OnClickListener{
             iv_right2.setImageResource(resId);
         }
     }
+
+    public void hideRightBtns(){
+        iv_right2.setVisibility(View.GONE);
+        iv_right1.setVisibility(View.GONE);
+    }
+
     public void setTitleStr(@StringRes int resId){
         tv_title.setText(resId);
     }

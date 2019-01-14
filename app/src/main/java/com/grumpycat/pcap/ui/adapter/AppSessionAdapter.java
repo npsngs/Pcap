@@ -12,7 +12,7 @@ import com.grumpycat.pcap.tools.CommonTool;
 import com.grumpycat.pcap.ui.base.BaseAdapter;
 import com.grumpycat.pcap.ui.base.BaseHolder;
 import com.grumpycat.pcap.ui.base.BindDataGetter;
-import com.grumpycat.pcaplib.appinfo.AppInfo;
+import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.session.NetSession;
 
 /**
@@ -61,14 +61,16 @@ public class AppSessionAdapter extends BaseAdapter<AppSessions> {
         protected void onBindData(BindDataGetter<AppSessions> dataGetter) {
             int pos = getAdapterPosition();
             AppSessions appSessions = dataGetter.getItemData(pos);
-            AppInfo appInfo = appSessions.getAppInfo();
-            if(appInfo != null){
-                iv_icon.setImageDrawable(appSessions.getAppInfo().icon);
-                tv_name.setText(appSessions.getAppInfo().name);
-            }else{
-                iv_icon.setImageResource(R.drawable.sym_def_app_icon);
-                tv_name.setText(R.string.unknow);
-            }
+            AppManager.asyncLoad(appSessions.getUid(), appInfo -> {
+                if(appInfo != null){
+                    iv_icon.setImageDrawable(appInfo.icon);
+                    tv_name.setText(appInfo.name);
+                }else{
+                    iv_icon.setImageResource(R.drawable.sym_def_app_icon);
+                    tv_name.setText(R.string.unknow);
+                }
+            });
+
             tv_upload.setText(appSessions.getSendBytes()+"B");
             tv_download.setText(appSessions.getRecvBytes()+"B");
 

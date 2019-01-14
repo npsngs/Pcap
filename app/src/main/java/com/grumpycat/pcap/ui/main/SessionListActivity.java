@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.widget.TextView;
-
 import com.grumpycat.pcap.R;
 import com.grumpycat.pcap.base.BaseActi;
 import com.grumpycat.pcaplib.appinfo.AppInfo;
@@ -31,8 +29,10 @@ public class SessionListActivity extends BaseActi {
         setContentView(R.layout.acti_session_list);
         uid = getIntent().getIntExtra("uid", 0);
         if(uid != 0){
-            appInfo = AppManager.getApp(uid);
-            getToolbar().setTitle(appInfo.name);
+            AppManager.asyncLoad(uid, ret->{
+                appInfo = ret;
+                getToolbar().setTitle(appInfo.name);
+            });
         }else{
             getToolbar().setTitle(R.string.unknow);
         }

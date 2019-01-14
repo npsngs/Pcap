@@ -12,7 +12,6 @@ import com.grumpycat.pcap.tools.Util;
 import com.grumpycat.pcap.ui.adapter.SessionsAdapter;
 import com.grumpycat.pcap.ui.base.SingleList;
 import com.grumpycat.pcap.ui.detail.SessionDetailActi;
-import com.grumpycat.pcaplib.appinfo.AppInfo;
 import com.grumpycat.pcaplib.appinfo.AppManager;
 import com.grumpycat.pcaplib.session.NetSession;
 import com.grumpycat.pcaplib.util.StrUtil;
@@ -44,15 +43,17 @@ public class HistorySessionsActi extends BaseActi {
         adapter = new SessionsAdapter(){
             @Override
             protected void onJump(NetSession session) {
-                AppInfo appInfo = AppManager.getApp(session.getUid());
-                String appName = appInfo != null
-                        ?appInfo.name
-                        :HistorySessionsActi.this.getString(R.string.unknow);
-                SessionDetailActi.goLaunch(HistorySessionsActi.this,
-                        appName,
-                        session.getProtocol(),
-                        StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()),
-                        session.hashCode());
+                AppManager.asyncLoad(session.getUid(), appInfo->{
+                    String appName = appInfo != null
+                            ?appInfo.name
+                            :HistorySessionsActi.this.getString(R.string.unknow);
+                    SessionDetailActi.goLaunch(HistorySessionsActi.this,
+                            appName,
+                            session.getProtocol(),
+                            StrUtil.formatYYMMDD_HHMMSS(session.getVpnStartTime()),
+                            session.hashCode());
+                });
+
             }
         };
         singleList.setAdapter(adapter);
